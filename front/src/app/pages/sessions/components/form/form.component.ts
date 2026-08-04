@@ -51,11 +51,11 @@ export class FormComponent implements OnInit {
     if (!this.onUpdate) {
       this.sessionApiService
         .create(session)
-        .subscribe((_: Session) => this.exitPage('Session created !'));
+        .subscribe(() => this.exitPage('Session created !'));
     } else {
       this.sessionApiService
         .update(this.id!, session)
-        .subscribe((_: Session) => this.exitPage('Session updated !'));
+        .subscribe(() => this.exitPage('Session updated !'));
     }
   }
 

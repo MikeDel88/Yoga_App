@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import { Observable } from 'rxjs';
 import { LoginRequest } from '../models/loginRequest.interface';
 import { RegisterRequest } from '../models/registerRequest.interface';
@@ -12,7 +12,7 @@ export class AuthService {
 
   private pathService = '/api/auth';
 
-  constructor(private httpClient: HttpClient) { }
+  private httpClient: HttpClient = inject(HttpClient);
 
   public register(registerRequest: RegisterRequest): Observable<void> {
     return this.httpClient.post<void>(`${this.pathService}/register`, registerRequest);

@@ -1,5 +1,4 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { FormBuilder } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Teacher } from '../../../../core/models/teacher.interface';
@@ -25,7 +24,6 @@ export class DetailComponent implements OnInit {
   public userId: string;
 
   private route = inject(ActivatedRoute);
-  private fb = inject(FormBuilder);
   private sessionService = inject(SessionService);
   private sessionApiService = inject(SessionApiService);
   private teacherService = inject(TeacherService);
@@ -49,7 +47,7 @@ export class DetailComponent implements OnInit {
   public delete(): void {
     this.sessionApiService
       .delete(this.sessionId)
-      .subscribe((_: any) => {
+      .subscribe(() => {
           this.matSnackBar.open('Session deleted !', 'Close', { duration: 3000 });
           this.router.navigate(['sessions']);
         }
@@ -57,11 +55,11 @@ export class DetailComponent implements OnInit {
   }
 
   public participate(): void {
-    this.sessionApiService.participate(this.sessionId, this.userId).subscribe(_ => this.fetchSession());
+    this.sessionApiService.participate(this.sessionId, this.userId).subscribe(() => this.fetchSession());
   }
 
   public unParticipate(): void {
-    this.sessionApiService.unParticipate(this.sessionId, this.userId).subscribe(_ => this.fetchSession());
+    this.sessionApiService.unParticipate(this.sessionId, this.userId).subscribe(() => this.fetchSession());
   }
 
   private fetchSession(): void {
