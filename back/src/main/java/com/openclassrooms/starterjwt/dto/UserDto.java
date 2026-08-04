@@ -2,6 +2,7 @@ package com.openclassrooms.starterjwt.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -29,7 +30,7 @@ public class UserDto {
     @Size(max = 20)
     private String firstName;
 
-    @NonNull
+    @NotNull
     private boolean admin;
 
     @JsonIgnore
