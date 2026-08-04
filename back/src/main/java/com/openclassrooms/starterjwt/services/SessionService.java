@@ -50,7 +50,7 @@ public class SessionService {
             throw new NotFoundException();
         }
 
-        boolean alreadyParticipate = session.getUsers().stream().anyMatch(o -> o.getId().equals(userId));
+        boolean alreadyParticipate = session.getUsers().stream().anyMatch(u -> u.getId().equals(userId));
         if (alreadyParticipate) {
             throw new BadRequestException();
         }
@@ -66,7 +66,7 @@ public class SessionService {
             throw new NotFoundException();
         }
 
-        boolean alreadyParticipate = session.getUsers().stream().anyMatch(o -> o.getId().equals(userId));
+        boolean alreadyParticipate = session.getUsers().stream().anyMatch(user -> user.getId().equals(userId));
         if (!alreadyParticipate) {
             throw new BadRequestException();
         }
