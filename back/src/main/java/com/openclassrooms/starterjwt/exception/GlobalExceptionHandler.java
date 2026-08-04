@@ -12,4 +12,20 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NumberFormatException.class)
     public void handleNumberFormatException() {}
 
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ExceptionHandler(UnauthorizedRequestException.class)
+    public void handleUnauthorizedRequestException() {}
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(BadRequestException.class)
+    public void handleBadRequestException() {}
+
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(NotFoundException.class)
+    public void handleNotFoundException() {}
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(IllegalArgumentException.class)
+    public void handleIllegalArgumentException() {}
+
 }

@@ -36,46 +36,29 @@ public class SessionController {
     @GetMapping("/{id}")
     public ResponseEntity<SessionDto> findById(@PathVariable("id") String id) {
         Session session = this.sessionService.getById(Long.valueOf(id));
-
-        if (session == null) {
-            return ResponseEntity.notFound().build();
-        }
-
         return ResponseEntity.ok().body(this.sessionMapper.toDto(session));
     }
 
     @GetMapping()
     public ResponseEntity<List<SessionDto>> findAll() {
         List<Session> sessions = this.sessionService.findAll();
-
         return ResponseEntity.ok().body(this.sessionMapper.toDto(sessions));
     }
 
     @PostMapping()
     public ResponseEntity<SessionDto> create(@Valid @RequestBody SessionDto sessionDto) {
-        log.info(sessionDto);
-
         Session session = this.sessionService.create(this.sessionMapper.toEntity(sessionDto));
-
-        log.info(session);
         return ResponseEntity.ok().body(this.sessionMapper.toDto(session));
     }
 
     @PutMapping("{id}")
     public ResponseEntity<SessionDto> update(@PathVariable("id") String id, @Valid @RequestBody SessionDto sessionDto) {
         Session session = this.sessionService.update(Long.parseLong(id), this.sessionMapper.toEntity(sessionDto));
-
         return ResponseEntity.ok().body(this.sessionMapper.toDto(session));
     }
 
     @DeleteMapping("{id}")
     public ResponseEntity<Void> delete(@PathVariable("id") String id) {
-        Session session = this.sessionService.getById(Long.valueOf(id));
-
-        if (session == null) {
-            return ResponseEntity.notFound().build();
-        }
-
         this.sessionService.delete(Long.parseLong(id));
         return ResponseEntity.ok().build();
     }
@@ -83,14 +66,12 @@ public class SessionController {
     @PostMapping("{id}/participate/{userId}")
     public ResponseEntity<Void> participate(@PathVariable("id") String id, @PathVariable("userId") String userId) {
         this.sessionService.participate(Long.parseLong(id), Long.parseLong(userId));
-
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("{id}/participate/{userId}")
     public ResponseEntity<Void> noLongerParticipate(@PathVariable("id") String id, @PathVariable("userId") String userId) {
         this.sessionService.noLongerParticipate(Long.parseLong(id), Long.parseLong(userId));
-
         return ResponseEntity.ok().build();
     }
 }
