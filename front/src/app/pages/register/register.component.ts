@@ -1,11 +1,12 @@
 import { Component, inject } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/service/auth.service';
 import { RegisterRequest } from '../../core/models/registerRequest.interface';
 import { MaterialModule } from "../../shared/material.module";
 import { CommonModule } from "@angular/common";
 import {FlexLayoutModule} from "@angular/flex-layout";
+import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 @Component({
   selector: 'app-register',
   imports: [CommonModule, MaterialModule, FlexLayoutModule],
@@ -18,7 +19,7 @@ export class RegisterComponent {
   private router: Router = inject(Router);
   public onError: boolean = false;
 
-  public form = this.fb.group({
+  public form: FormGroup = this.fb.group({
     email: [
       '',
       [
@@ -55,11 +56,12 @@ export class RegisterComponent {
 
   public submit(): void {
     const registerRequest = this.form.value as RegisterRequest;
-    this.authService.register(registerRequest).subscribe({
+    this.authService.register(registerRequest)
+      .pipe(takeUntilDestroyed())
+      .subscribe({
         next: (): Promise<boolean> => this.router.navigate(['/login']),
         error: (): boolean => this.onError = true,
-      }
-    );
+      });
   }
 
 }

@@ -11,6 +11,7 @@ import { CommonModule } from "@angular/common";
 import {FlexLayoutModule} from "@angular/flex-layout";
 import {Observable} from "rxjs";
 import {Teacher} from "../../../../core/models/teacher.interface";
+import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 
 @Component({
   selector: 'app-form',
@@ -42,6 +43,7 @@ export class FormComponent implements OnInit {
       this.id = this.route.snapshot.paramMap.get('id')!;
       this.sessionApiService
         .detail(this.id)
+        .pipe(takeUntilDestroyed())
         .subscribe((session: Session): void => this.initForm(session));
     } else {
       this.initForm();
@@ -54,10 +56,12 @@ export class FormComponent implements OnInit {
     if (!this.onUpdate) {
       this.sessionApiService
         .create(session)
+        .pipe(takeUntilDestroyed())
         .subscribe((): void => this.exitPage('Session created !'));
     } else {
       this.sessionApiService
         .update(this.id!, session)
+        .pipe(takeUntilDestroyed())
         .subscribe((): void => this.exitPage('Session updated !'));
     }
   }

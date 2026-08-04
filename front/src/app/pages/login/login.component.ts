@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import { Router } from '@angular/router';
 import { SessionInformation } from 'src/app/core/models/sessionInformation.interface';
 import { SessionService } from 'src/app/core/service/session.service';
@@ -8,6 +8,7 @@ import { AuthService } from '../../core/service/auth.service';
 import {MaterialModule} from "../../shared/material.module";
 import { CommonModule } from '@angular/common';
 import {FlexLayoutModule} from "@angular/flex-layout";
+import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 
 @Component({
   selector: 'app-login',
@@ -24,7 +25,7 @@ export class LoginComponent {
   public hide: boolean = true;
   public onError: boolean = false;
 
-  public form = this.fb.group({
+  public form: FormGroup = this.fb.group({
     email: [
       '',
       [
@@ -43,12 +44,14 @@ export class LoginComponent {
 
   public submit(): void {
     const loginRequest = this.form.value as LoginRequest;
-    this.authService.login(loginRequest).subscribe({
-      next: (response: SessionInformation) => {
-        this.sessionService.logIn(response);
-        this.router.navigate(['/sessions']);
-      },
-      error: (): boolean => this.onError = true,
-    });
+    this.authService.login(loginRequest)
+      .pipe(takeUntilDestroyed())
+      .subscribe({
+        next: (response: SessionInformation) => {
+          this.sessionService.logIn(response);
+          this.router.navigate(['/sessions']);
+        },
+        error: (): boolean => this.onError = true,
+      });
   }
 }

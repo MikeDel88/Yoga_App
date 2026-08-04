@@ -7,6 +7,7 @@ import { UserService } from '../../core/service/user.service';
 import { MaterialModule } from "../../shared/material.module";
 import { CommonModule } from "@angular/common";
 import {FlexLayoutModule} from "@angular/flex-layout";
+import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 
 @Component({
   selector: 'app-me',
@@ -25,6 +26,7 @@ export class MeComponent implements OnInit {
   ngOnInit(): void {
     this.userService
       .getById(this.sessionService.sessionInformation!.id.toString())
+      .pipe(takeUntilDestroyed())
       .subscribe((user: User) => this.user = user);
   }
 
@@ -35,6 +37,7 @@ export class MeComponent implements OnInit {
   public delete(): void {
     this.userService
       .delete(this.sessionService.sessionInformation!.id.toString())
+      .pipe(takeUntilDestroyed())
       .subscribe((): void => {
         this.matSnackBar.open("Your account has been deleted !", 'Close', { duration: 3000 });
         this.sessionService.logOut();
