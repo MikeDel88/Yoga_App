@@ -8,10 +8,11 @@ import { Session } from '../../../../core/models/session.interface';
 import { SessionApiService } from '../../../../core/service/session-api.service';
 import { MaterialModule } from "../../../../shared/material.module";
 import { CommonModule } from "@angular/common";
+import {FlexLayoutModule} from "@angular/flex-layout";
 
 @Component({
   selector: 'app-detail',
-  imports: [CommonModule, MaterialModule],
+  imports: [CommonModule, MaterialModule, FlexLayoutModule],
   templateUrl: './detail.component.html',
   styleUrls: ['./detail.component.scss']
 })

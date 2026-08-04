@@ -7,10 +7,11 @@ import { SessionApiService } from '../../../../core/service/session-api.service'
 import { MaterialModule } from "../../../../shared/material.module";
 import { CommonModule } from "@angular/common";
 import { RouterModule } from "@angular/router";
+import {FlexLayoutModule} from "@angular/flex-layout";
 
 @Component({
   selector: 'app-list',
-  imports: [CommonModule, MaterialModule, RouterModule],
+  imports: [CommonModule, MaterialModule, RouterModule, FlexLayoutModule],
   templateUrl: './list.component.html',
   styleUrls: ['./list.component.scss']
 })
