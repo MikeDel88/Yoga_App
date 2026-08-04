@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
@@ -32,6 +32,7 @@ export class FormComponent implements OnInit {
   public sessionForm: FormGroup | undefined;
   public teachers$: Observable<Teacher[]> = this.teacherService.all();
   private id: string | undefined;
+  private destroyRef: DestroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
     if (!this.sessionService.sessionInformation!.admin) {
@@ -43,7 +44,7 @@ export class FormComponent implements OnInit {
       this.id = this.route.snapshot.paramMap.get('id')!;
       this.sessionApiService
         .detail(this.id)
-        .pipe(takeUntilDestroyed())
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe((session: Session): void => this.initForm(session));
     } else {
       this.initForm();
@@ -56,12 +57,12 @@ export class FormComponent implements OnInit {
     if (!this.onUpdate) {
       this.sessionApiService
         .create(session)
-        .pipe(takeUntilDestroyed())
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe((): void => this.exitPage('Session created !'));
     } else {
       this.sessionApiService
         .update(this.id!, session)
-        .pipe(takeUntilDestroyed())
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe((): void => this.exitPage('Session updated !'));
     }
   }
