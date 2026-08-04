@@ -2,14 +2,18 @@ package com.openclassrooms.starterjwt.services;
 
 import com.openclassrooms.starterjwt.models.User;
 import com.openclassrooms.starterjwt.payload.request.LoginRequest;
+import com.openclassrooms.starterjwt.payload.request.SignupRequest;
 import com.openclassrooms.starterjwt.payload.response.JwtResponse;
+import com.openclassrooms.starterjwt.payload.response.MessageResponse;
 import com.openclassrooms.starterjwt.repository.UserRepository;
 import com.openclassrooms.starterjwt.security.jwt.JwtUtils;
 import com.openclassrooms.starterjwt.security.services.UserDetailsImpl;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,11 +21,13 @@ public class UserService {
     private final UserRepository userRepository;
     private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, AuthenticationManager authenticationManager, JwtUtils jwtUtils) {
+    public UserService(UserRepository userRepository, AuthenticationManager authenticationManager, JwtUtils jwtUtils, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.authenticationManager = authenticationManager;
         this.jwtUtils = jwtUtils;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public JwtResponse authenticateUser(LoginRequest loginRequest) {
@@ -44,6 +50,21 @@ public class UserService {
                 userDetails.getFirstName(),
                 userDetails.getLastName(),
                 isAdmin);
+    }
+
+    public User create(SignupRequest signUpRequest) {
+        if (userRepository.existsByEmail(signUpRequest.getEmail())) {
+            return null;
+        }
+
+        // Create new user's account
+        User user = new User(signUpRequest.getEmail(),
+                signUpRequest.getLastName(),
+                signUpRequest.getFirstName(),
+                passwordEncoder.encode(signUpRequest.getPassword()),
+                false);
+
+        return userRepository.save(user);
     }
 
     public void delete(Long id) {
