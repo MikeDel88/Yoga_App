@@ -8,7 +8,7 @@ import { Teacher } from '../models/teacher.interface';
 })
 export class TeacherService {
 
-  private pathService = 'api/teacher';
+  private pathService: string = 'api/teacher';
 
   private httpClient: HttpClient = inject(HttpClient);
 

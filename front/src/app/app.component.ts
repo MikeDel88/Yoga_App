@@ -13,8 +13,8 @@ import {FlexLayoutModule} from "@angular/flex-layout";
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  private router = inject(Router);
-  private sessionService = inject(SessionService);
+  private router: Router = inject(Router);
+  private sessionService: SessionService = inject(SessionService);
 
   public $isLogged(): Observable<boolean> {
     return this.sessionService.$isLogged();

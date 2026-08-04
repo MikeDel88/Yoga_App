@@ -8,7 +8,7 @@ import { User } from '../models/user.interface';
 })
 export class UserService {
 
-  private pathService = 'api/user';
+  private pathService: string = 'api/user';
 
   private httpClient: HttpClient = inject(HttpClient);
 
@@ -16,7 +16,7 @@ export class UserService {
     return this.httpClient.get<User>(`${this.pathService}/${id}`);
   }
 
-  public delete(id: string): Observable<unknown> {
-    return this.httpClient.delete(`${this.pathService}/${id}`)
+  public delete(id: string): Observable<void> {
+    return this.httpClient.delete<void>(`${this.pathService}/${id}`)
   }
 }

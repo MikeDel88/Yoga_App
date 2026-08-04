@@ -19,17 +19,17 @@ import {FlexLayoutModule} from "@angular/flex-layout";
 export class DetailComponent implements OnInit {
   public session: Session | undefined;
   public teacher: Teacher | undefined;
-  public isParticipate = false;
-  public isAdmin = false;
+  public isParticipate: boolean = false;
+  public isAdmin: boolean = false;
   public sessionId: string;
   public userId: string;
 
-  private route = inject(ActivatedRoute);
-  private sessionService = inject(SessionService);
-  private sessionApiService = inject(SessionApiService);
-  private teacherService = inject(TeacherService);
-  private matSnackBar = inject(MatSnackBar);
-  private router = inject(Router);
+  private route: ActivatedRoute = inject(ActivatedRoute);
+  private sessionService: SessionService = inject(SessionService);
+  private sessionApiService: SessionApiService = inject(SessionApiService);
+  private teacherService: TeacherService = inject(TeacherService);
+  private matSnackBar: MatSnackBar = inject(MatSnackBar);
+  private router: Router = inject(Router);
 
   constructor() {
     this.sessionId = this.route.snapshot.paramMap.get('id')!;
@@ -41,14 +41,14 @@ export class DetailComponent implements OnInit {
     this.fetchSession();
   }
 
-  public back() {
+  public back(): void {
     window.history.back();
   }
 
   public delete(): void {
     this.sessionApiService
       .delete(this.sessionId)
-      .subscribe(() => {
+      .subscribe((): void => {
           this.matSnackBar.open('Session deleted !', 'Close', { duration: 3000 });
           this.router.navigate(['sessions']);
         }
@@ -66,12 +66,12 @@ export class DetailComponent implements OnInit {
   private fetchSession(): void {
     this.sessionApiService
       .detail(this.sessionId)
-      .subscribe((session: Session) => {
+      .subscribe((session: Session): void => {
         this.session = session;
-        this.isParticipate = session.users.some(u => u === this.sessionService.sessionInformation!.id);
+        this.isParticipate = session.users.some((id: number) => id === this.sessionService.sessionInformation!.id);
         this.teacherService
           .detail(session.teacher_id.toString())
-          .subscribe((teacher: Teacher) => this.teacher = teacher);
+          .subscribe((teacher: Teacher): Teacher => this.teacher = teacher);
       });
   }
 

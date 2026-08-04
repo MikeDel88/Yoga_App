@@ -16,8 +16,8 @@ import {FlexLayoutModule} from "@angular/flex-layout";
   styleUrls: ['./list.component.scss']
 })
 export class ListComponent {
-  private sessionApiService = inject(SessionApiService);
-  private sessionService = inject(SessionService);
+  private sessionApiService: SessionApiService = inject(SessionApiService);
+  private sessionService: SessionService = inject(SessionService);
 
   public sessions$: Observable<Session[]> = this.sessionApiService.all();
 

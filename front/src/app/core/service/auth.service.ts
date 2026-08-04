@@ -10,7 +10,7 @@ import { SessionInformation } from 'src/app/core/models/sessionInformation.inter
 })
 export class AuthService {
 
-  private pathService = '/api/auth';
+  private pathService: string = '/api/auth';
 
   private httpClient: HttpClient = inject(HttpClient);
 

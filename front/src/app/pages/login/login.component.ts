@@ -16,13 +16,13 @@ import {FlexLayoutModule} from "@angular/flex-layout";
   styleUrls: ['./login.component.scss']
 })
 export class LoginComponent {
-  private authService = inject(AuthService);
-  private fb = inject(FormBuilder);
-  private router = inject(Router);
-  private sessionService = inject(SessionService);
+  private authService: AuthService = inject(AuthService);
+  private fb: FormBuilder = inject(FormBuilder);
+  private router: Router = inject(Router);
+  private sessionService: SessionService = inject(SessionService);
 
-  public hide = true;
-  public onError = false;
+  public hide: boolean = true;
+  public onError: boolean = false;
 
   public form = this.fb.group({
     email: [
@@ -48,7 +48,7 @@ export class LoginComponent {
         this.sessionService.logIn(response);
         this.router.navigate(['/sessions']);
       },
-      error: () => this.onError = true,
+      error: (): boolean => this.onError = true,
     });
   }
 }

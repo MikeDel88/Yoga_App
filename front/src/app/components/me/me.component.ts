@@ -15,10 +15,10 @@ import {FlexLayoutModule} from "@angular/flex-layout";
   styleUrls: ['./me.component.scss']
 })
 export class MeComponent implements OnInit {
-  private router = inject(Router);
-  private sessionService = inject(SessionService);
-  private matSnackBar = inject(MatSnackBar);
-  private userService = inject(UserService);
+  private router: Router = inject(Router);
+  private sessionService: SessionService = inject(SessionService);
+  private matSnackBar: MatSnackBar = inject(MatSnackBar);
+  private userService: UserService = inject(UserService);
   public user: User | undefined;
 
 
@@ -35,7 +35,7 @@ export class MeComponent implements OnInit {
   public delete(): void {
     this.userService
       .delete(this.sessionService.sessionInformation!.id.toString())
-      .subscribe(() => {
+      .subscribe((): void => {
         this.matSnackBar.open("Your account has been deleted !", 'Close', { duration: 3000 });
         this.sessionService.logOut();
         this.router.navigate(['/']);

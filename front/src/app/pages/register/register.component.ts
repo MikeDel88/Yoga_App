@@ -13,10 +13,10 @@ import {FlexLayoutModule} from "@angular/flex-layout";
   styleUrls: ['./register.component.scss']
 })
 export class RegisterComponent {
-  private authService = inject(AuthService);
-  private fb = inject(FormBuilder);
-  private router = inject(Router);
-  public onError = false;
+  private authService: AuthService = inject(AuthService);
+  private fb: FormBuilder = inject(FormBuilder);
+  private router: Router = inject(Router);
+  public onError: boolean = false;
 
   public form = this.fb.group({
     email: [
@@ -56,8 +56,8 @@ export class RegisterComponent {
   public submit(): void {
     const registerRequest = this.form.value as RegisterRequest;
     this.authService.register(registerRequest).subscribe({
-        next: () => this.router.navigate(['/login']),
-        error: () => this.onError = true,
+        next: (): Promise<boolean> => this.router.navigate(['/login']),
+        error: (): boolean => this.onError = true,
       }
     );
   }

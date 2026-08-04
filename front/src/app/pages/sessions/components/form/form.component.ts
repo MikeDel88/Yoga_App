@@ -9,6 +9,8 @@ import { SessionApiService } from '../../../../core/service/session-api.service'
 import { MaterialModule } from "../../../../shared/material.module";
 import { CommonModule } from "@angular/common";
 import {FlexLayoutModule} from "@angular/flex-layout";
+import {Observable} from "rxjs";
+import {Teacher} from "../../../../core/models/teacher.interface";
 
 @Component({
   selector: 'app-form',
@@ -17,30 +19,30 @@ import {FlexLayoutModule} from "@angular/flex-layout";
   styleUrls: ['./form.component.scss']
 })
 export class FormComponent implements OnInit {
-  private route = inject(ActivatedRoute);
-  private fb = inject(FormBuilder);
-  private matSnackBar = inject(MatSnackBar);
-  private sessionApiService = inject(SessionApiService);
-  private sessionService = inject(SessionService);
-  private teacherService = inject(TeacherService);
-  private router = inject(Router);
+  private route: ActivatedRoute = inject(ActivatedRoute);
+  private fb: FormBuilder = inject(FormBuilder);
+  private matSnackBar: MatSnackBar = inject(MatSnackBar);
+  private sessionApiService: SessionApiService = inject(SessionApiService);
+  private sessionService: SessionService = inject(SessionService);
+  private teacherService: TeacherService = inject(TeacherService);
+  private router: Router = inject(Router);
 
   public onUpdate: boolean = false;
   public sessionForm: FormGroup | undefined;
-  public teachers$ = this.teacherService.all();
+  public teachers$: Observable<Teacher[]> = this.teacherService.all();
   private id: string | undefined;
 
   ngOnInit(): void {
     if (!this.sessionService.sessionInformation!.admin) {
       this.router.navigate(['/sessions']);
     }
-    const url = this.router.url;
+    const url: string = this.router.url;
     if (url.includes('update')) {
       this.onUpdate = true;
       this.id = this.route.snapshot.paramMap.get('id')!;
       this.sessionApiService
         .detail(this.id)
-        .subscribe((session: Session) => this.initForm(session));
+        .subscribe((session: Session): void => this.initForm(session));
     } else {
       this.initForm();
     }
@@ -52,11 +54,11 @@ export class FormComponent implements OnInit {
     if (!this.onUpdate) {
       this.sessionApiService
         .create(session)
-        .subscribe(() => this.exitPage('Session created !'));
+        .subscribe((): void => this.exitPage('Session created !'));
     } else {
       this.sessionApiService
         .update(this.id!, session)
-        .subscribe(() => this.exitPage('Session updated !'));
+        .subscribe((): void => this.exitPage('Session updated !'));
     }
   }
 
