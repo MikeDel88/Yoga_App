@@ -7,14 +7,9 @@ import com.openclassrooms.starterjwt.payload.request.SignupRequest;
 import com.openclassrooms.starterjwt.payload.response.JwtResponse;
 import com.openclassrooms.starterjwt.payload.response.MessageResponse;
 import com.openclassrooms.starterjwt.repository.UserRepository;
-import com.openclassrooms.starterjwt.security.jwt.JwtUtils;
-import com.openclassrooms.starterjwt.security.services.UserDetailsImpl;
+import com.openclassrooms.starterjwt.services.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,43 +19,24 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
-    private final AuthenticationManager authenticationManager;
-    private final JwtUtils jwtUtils;
+
+    private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
 
-    public AuthController(AuthenticationManager authenticationManager,
-                   PasswordEncoder passwordEncoder,
-                   JwtUtils jwtUtils,
-                   UserRepository userRepository) {
-        this.authenticationManager = authenticationManager;
-        this.jwtUtils = jwtUtils;
+
+    public AuthController(
+            UserService userService, PasswordEncoder passwordEncoder,
+            UserRepository userRepository) {
+        this.userService = userService;
         this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
-
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = jwtUtils.generateJwtToken(authentication);
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-
-        boolean isAdmin = false;
-        User user = this.userRepository.findByEmail(userDetails.getUsername()).orElse(null);
-        if (user != null) {
-            isAdmin = user.isAdmin();
-        }
-
-        return ResponseEntity.ok(new JwtResponse(jwt,
-                userDetails.getId(),
-                userDetails.getUsername(),
-                userDetails.getFirstName(),
-                userDetails.getLastName(),
-                isAdmin));
+        JwtResponse jwtResponse = userService.authenticateUser(loginRequest);
+        return ResponseEntity.ok(jwtResponse);
     }
 
     @PostMapping("/register")
