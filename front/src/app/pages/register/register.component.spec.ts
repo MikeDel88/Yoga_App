@@ -237,5 +237,18 @@ describe('RegisterComponent', () => {
 
       expect(component.onError).toBe(false);
     });
+
+    it('should not navigate when a 409 conflict occurs (email already used)', () => {
+      const { navigateSpy } = submitFailedRegister(mockRegister, 409, 'Conflict');
+
+      expect(navigateSpy).not.toHaveBeenCalled();
+      expect(component.onError).toBe(true);
+    });
+
+    it('should keep the entered values in the form after a failed registration', () => {
+      submitFailedRegister();
+
+      expect(component.form.value).toEqual(mockRegister);
+    });
   });
 });

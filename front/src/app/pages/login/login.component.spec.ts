@@ -238,5 +238,16 @@ describe('LoginComponent', () => {
       const { sessionLoginSpy } = submitFailedLogin();
       expect(sessionLoginSpy).not.toHaveBeenCalled();
     });
+
+    it('should not call sessionService.logIn on a 500 server error', () => {
+      const { sessionLoginSpy } = submitFailedLogin(wrongLogin, 500, 'Internal Server Error');
+      expect(sessionLoginSpy).not.toHaveBeenCalled();
+    });
+
+    it('should keep the entered email and password in the form after a failed login', () => {
+      submitFailedLogin();
+
+      expect(component.form.value).toEqual(wrongLogin);
+    });
   });
 });

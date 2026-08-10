@@ -209,6 +209,32 @@ describe('DetailComponent', () => {
       teacherReq.flush(mockTeacher);
     });
 
+    it('should expose the fetched session and teacher on the component instance', () => {
+      renderWithSession();
+
+      expect(component.session).toEqual(mockSession);
+      expect(component.teacher).toEqual(mockTeacher);
+    });
+
+    it('should refetch the teacher matching the updated session teacher_id after participate()', () => {
+      mockSessionService.sessionInformation.admin = false;
+      renderWithSession({ ...mockSession, users: [] });
+
+      const otherTeacher: Teacher = { ...mockTeacher, id: 2, firstName: 'Jane', lastName: 'Smith' };
+
+      participateButton().nativeElement.click();
+
+      httpMock.expectOne({ url: 'api/session/1/participate/1' }).flush(null);
+
+      const refetchReq: TestRequest = httpMock.expectOne({ url: 'api/session/1' });
+      refetchReq.flush({ ...mockSession, users: [1], teacher_id: 2 });
+
+      const teacherReq: TestRequest = httpMock.expectOne({ url: 'api/teacher/2' });
+      teacherReq.flush(otherTeacher);
+
+      expect(component.teacher).toEqual(otherTeacher);
+    });
+
     it('should delete the session, show a snackbar and navigate to sessions on delete()', () => {
       mockSessionService.sessionInformation.admin = true;
       renderWithSession();

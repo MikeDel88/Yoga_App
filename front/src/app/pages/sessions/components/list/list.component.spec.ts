@@ -2,11 +2,12 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DebugElement } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { afterEach, beforeEach, describe, expect, it } from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { SessionService } from 'src/app/core/service/session.service';
 import { HttpTestingController, provideHttpClientTesting, TestRequest } from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
+import { RouterTestingHarness } from '@angular/router/testing';
 import { By } from '@angular/platform-browser';
 import { Session } from 'src/app/core/models/session.interface';
 import { routes } from '../../../../app.routes';
@@ -25,8 +26,10 @@ describe('ListComponent', () => {
   let component: ListComponent;
   let fixture: ComponentFixture<ListComponent>;
   let httpMock: HttpTestingController;
+  let router: Router;
 
-  const mockSessionService: { sessionInformation: { admin: boolean } } = {
+  const mockSessionService: { isLogged: boolean; sessionInformation: { admin: boolean } } = {
+    isLogged: true,
     sessionInformation: { admin: true }
   };
 
@@ -36,6 +39,7 @@ describe('ListComponent', () => {
   ];
 
   beforeEach(async () => {
+    mockSessionService.isLogged = true;
     mockSessionService.sessionInformation.admin = true;
 
     await TestBed.configureTestingModule({
@@ -52,6 +56,7 @@ describe('ListComponent', () => {
     fixture = TestBed.createComponent(ListComponent);
     component = fixture.componentInstance;
     httpMock = TestBed.inject(HttpTestingController);
+    router = TestBed.inject(Router);
   });
 
   afterEach(() => {
@@ -172,6 +177,67 @@ describe('ListComponent', () => {
       fixture.detectChanges();
 
       expect(sessionCards().length).toBe(0);
+    });
+
+    /**
+     * Ces tests naviguent réellement vers /sessions (via RouterTestingHarness, qui active le
+     * composant dans un vrai <router-outlet>) plutôt que de créer ListComponent directement :
+     * les routerLink relatifs ("create", ['detail', id]) ne se résolvent correctement que dans
+     * ce contexte de route activée.
+     */
+    it('should navigate to /sessions/create when clicking the Create button', async () => {
+      const harness = await RouterTestingHarness.create('/sessions');
+      httpMock.expectOne({ url: 'api/session' }).flush(mockSessions);
+      harness.detectChanges();
+      // Le clic déclenche une vraie navigation (via RouterLink) : on l'intercepte pour vérifier
+      // l'URL calculée sans réellement activer FormComponent (ses propres dépendances ne sont
+      // pas configurées dans ce test de ListComponent).
+      const navigateByUrlSpy = jest.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
+
+      const createButton = harness.routeDebugElement!.query(By.css('[data-testid="create-button"]'));
+      createButton.nativeElement.click();
+
+      expect(navigateByUrlSpy).toHaveBeenCalled();
+      expect(navigateByUrlSpy.mock.calls[0][0].toString()).toBe('/sessions/create');
+    });
+
+    it("should navigate to the matching /sessions/detail/:id when clicking a card's Detail button", async () => {
+      const harness = await RouterTestingHarness.create('/sessions');
+      httpMock.expectOne({ url: 'api/session' }).flush(mockSessions);
+      harness.detectChanges();
+      const navigateByUrlSpy = jest.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
+
+      const cards = harness.routeDebugElement!.queryAll(By.css('[data-testid="session-card"]'));
+      detailButtons(cards[1])[0].nativeElement.click();
+
+      expect(navigateByUrlSpy).toHaveBeenCalled();
+      expect(navigateByUrlSpy.mock.calls[0][0].toString()).toBe(`/sessions/detail/${mockSessions[1].id}`);
+    });
+
+    it("should navigate to the matching /sessions/update/:id when clicking a card's Edit button", async () => {
+      const harness = await RouterTestingHarness.create('/sessions');
+      httpMock.expectOne({ url: 'api/session' }).flush(mockSessions);
+      harness.detectChanges();
+      const navigateByUrlSpy = jest.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
+
+      const cards = harness.routeDebugElement!.queryAll(By.css('[data-testid="session-card"]'));
+      editButtons(cards[0])[0].nativeElement.click();
+
+      expect(navigateByUrlSpy).toHaveBeenCalled();
+      expect(navigateByUrlSpy.mock.calls[0][0].toString()).toBe(`/sessions/update/${mockSessions[0].id}`);
+    });
+
+    it("should navigate to the matching /sessions/update/:id for the second card's Edit button too", async () => {
+      const harness = await RouterTestingHarness.create('/sessions');
+      httpMock.expectOne({ url: 'api/session' }).flush(mockSessions);
+      harness.detectChanges();
+      const navigateByUrlSpy = jest.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
+
+      const cards = harness.routeDebugElement!.queryAll(By.css('[data-testid="session-card"]'));
+      editButtons(cards[1])[0].nativeElement.click();
+
+      expect(navigateByUrlSpy).toHaveBeenCalled();
+      expect(navigateByUrlSpy.mock.calls[0][0].toString()).toBe(`/sessions/update/${mockSessions[1].id}`);
     });
   });
 });

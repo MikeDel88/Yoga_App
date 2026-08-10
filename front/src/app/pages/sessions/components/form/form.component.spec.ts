@@ -275,6 +275,29 @@ describe('FormComponent', () => {
       httpMock.expectNone({ url: 'api/session/1' });
     });
 
+    it('should redirect a non-admin user to /sessions in update mode too, without fetching anything', () => {
+      mockSessionService.sessionInformation.admin = false;
+      mockRouter.url = '/sessions/update/1';
+
+      fixture = TestBed.createComponent(FormComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+
+      expect(mockRouter.navigate).toHaveBeenCalledWith(['/sessions']);
+      expect(component.sessionForm).toBeUndefined();
+      httpMock.expectNone({ url: 'api/teacher' });
+      httpMock.expectNone({ url: 'api/session/1' });
+    });
+
+    it('should not send any create request before the Save button is clicked, even with a valid form', () => {
+      renderCreateForm();
+
+      component.sessionForm?.setValue(validFormValue);
+      fixture.detectChanges();
+
+      httpMock.expectNone({ url: 'api/session' });
+    });
+
     it('should create the session, show a snackbar and navigate to sessions on submit()', () => {
       renderCreateForm();
 
