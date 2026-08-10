@@ -38,7 +38,7 @@ export class LoginComponent {
       '',
       [
         Validators.required,
-        Validators.min(3)
+        Validators.minLength(4)
       ]
     ]
   });
@@ -49,6 +49,7 @@ export class LoginComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response: SessionInformation) => {
+          this.onError = false;
           this.sessionService.logIn(response);
           this.router.navigate(['/sessions']);
         },
