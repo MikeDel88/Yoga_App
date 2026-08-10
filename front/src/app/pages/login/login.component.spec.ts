@@ -41,7 +41,7 @@ describe('LoginComponent', () => {
   const mockLogin: LoginRequest = { email: 'test@test.com', password: 'password' };
   const wrongLogin: LoginRequest = { email: 'test@test.com', password: 'wrongpassword' };
   const submitButton = () =>
-    fixture.debugElement.query(By.css('button[type="submit"]')).nativeElement as HTMLButtonElement;
+    fixture.debugElement.query(By.css('[data-testid="submit"]')).nativeElement as HTMLButtonElement;
   const mockSession: SessionInformation = {
     token: 'fake-jwt-token',
     type: 'Bearer',

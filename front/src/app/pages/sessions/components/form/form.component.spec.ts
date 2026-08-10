@@ -133,9 +133,9 @@ describe('FormComponent', () => {
 
   const formTitle = () => fixture.debugElement.query(By.css('[data-testid="form-title"]'));
   const saveButton = () => fixture.debugElement.query(By.css('[data-testid="save-button"]'));
-  const nameInput = () => fixture.debugElement.query(By.css('input[formControlName="name"]'));
-  const dateInput = () => fixture.debugElement.query(By.css('input[formControlName="date"]'));
-  const descriptionTextarea = () => fixture.debugElement.query(By.css('textarea[formControlName="description"]'));
+  const nameInput = () => fixture.debugElement.query(By.css('[data-testid="name"]'));
+  const dateInput = () => fixture.debugElement.query(By.css('[data-testid="date"]'));
+  const descriptionTextarea = () => fixture.debugElement.query(By.css('[data-testid="description"]'));
 
   describe('Tests unitaires (DOM, formulaire et teachers déjà résolus)', () => {
 

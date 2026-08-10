@@ -43,7 +43,7 @@ describe('RegisterComponent', () => {
   };
 
   const submitButton = () =>
-    fixture.debugElement.query(By.css('button[type="submit"]')).nativeElement as HTMLButtonElement;
+    fixture.debugElement.query(By.css('[data-testid="submit"]')).nativeElement as HTMLButtonElement;
 
   beforeEach(async () => {
 

@@ -15,11 +15,11 @@
         <form class="mt2" fxLayout="column" [formGroup]="sessionForm" (ngSubmit)="submit()">
           <mat-form-field appearance="outline" fxFlex>
             <mat-label>Name</mat-label>
-            <input matInput formControlName="name">
+            <input matInput data-testid="name" formControlName="name">
           </mat-form-field>
           <mat-form-field appearance="outline" fxFlex>
             <mat-label>Date</mat-label>
-            <input matInput type="date" formControlName="date">
+            <input matInput type="date" data-testid="date" formControlName="date">
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Teacher</mat-label>
@@ -33,7 +33,7 @@
           </mat-form-field>
           <mat-form-field appearance="outline" fxFlex>
             <mat-label>Description</mat-label>
-            <textarea matInput rows="8" formControlName="description"></textarea>
+            <textarea matInput rows="8" data-testid="description" formControlName="description"></textarea>
           </mat-form-field>
           <div fxLayout="row" fxLayoutAlign="center center">
             <button mat-raised-button color="primary" type="submit" data-testid="save-button" [disabled]="sessionForm.invalid">
