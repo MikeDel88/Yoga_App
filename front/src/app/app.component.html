@@ -1,19 +1,17 @@
 <div class="app">
   <mat-toolbar color="primary" fxLayout="row" fxLayoutAlign="space-between center">
-    <span>Yoga app</span>
+    <span data-testid="app-title">Yoga app</span>
     @if($isLogged() | async) {
       <div>
-        <span routerLink="sessions" class="link">Sessions</span>
-        <span routerLink="me" class="link">Account</span>
-        <span (click)="logout()" class="link">Logout</span>
+        <span routerLink="sessions" class="link" data-testid="sessions-link">Sessions</span>
+        <span routerLink="me" class="link" data-testid="account-link">Account</span>
+        <span (click)="logout()" class="link" data-testid="logout-link">Logout</span>
       </div>
     } @else {
-      <ng-template>
-        <div>
-          <a  routerLink="/login" routerLinkActive="active" class="link">Login</a>
-          <a routerLink="/register" routerLinkActive="active" class="link">Register</a>
-        </div>
-      </ng-template>
+      <div>
+        <a routerLink="/login" routerLinkActive="active" class="link" data-testid="login-link">Login</a>
+        <a routerLink="/register" routerLinkActive="active" class="link" data-testid="register-link">Register</a>
+      </div>
     }
   </mat-toolbar>
   <div>
