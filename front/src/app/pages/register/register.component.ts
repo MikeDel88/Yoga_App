@@ -32,24 +32,24 @@ export class RegisterComponent {
       '',
       [
         Validators.required,
-        Validators.min(3),
-        Validators.max(20)
+        Validators.minLength(3),
+        Validators.maxLength(20)
       ]
     ],
     lastName: [
       '',
       [
         Validators.required,
-        Validators.min(3),
-        Validators.max(20)
+        Validators.minLength(3),
+        Validators.maxLength(20)
       ]
     ],
     password: [
       '',
       [
         Validators.required,
-        Validators.min(3),
-        Validators.max(40)
+        Validators.minLength(3),
+        Validators.maxLength(40)
       ]
     ]
   });
@@ -60,7 +60,10 @@ export class RegisterComponent {
     this.authService.register(registerRequest)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (): Promise<boolean> => this.router.navigate(['/login']),
+        next: (): Promise<boolean> => {
+          this.onError = false;
+          return this.router.navigate(['/login']);
+        },
         error: (): boolean => this.onError = true,
       });
   }
