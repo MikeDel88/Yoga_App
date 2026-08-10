@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { catchError, Observable, of } from 'rxjs';
 import { SessionInformation } from '../../../../core/models/sessionInformation.interface';
 import { SessionService } from '../../../../core/service/session.service';
 import { Session } from '../../../../core/models/session.interface';
@@ -19,7 +19,9 @@ export class ListComponent {
   private sessionApiService: SessionApiService = inject(SessionApiService);
   private sessionService: SessionService = inject(SessionService);
 
-  public sessions$: Observable<Session[]> = this.sessionApiService.all();
+  public sessions$: Observable<Session[]> = this.sessionApiService.all().pipe(
+    catchError(() => of([]))
+  );
 
   get user(): SessionInformation | undefined {
     return this.sessionService.sessionInformation;
