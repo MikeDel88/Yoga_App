@@ -7,7 +7,7 @@
         <button mat-icon-button routerLink="/sessions">
           <mat-icon>arrow_back</mat-icon>
         </button>
-        <h1 >{{ title }}</h1>
+        <h1 data-testid="form-title">{{ title }}</h1>
       </div>
     </mat-card-title>
     @if(sessionForm) {
@@ -23,7 +23,7 @@
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Teacher</mat-label>
-            <mat-select ngDefaultControl formControlName="teacher_id">
+            <mat-select ngDefaultControl formControlName="teacher_id" data-testid="teacher-select">
               @for (teacher of teachers$ | async; track teacher.id) {
                 <mat-option [value]="teacher.id">
                   {{teacher.firstName}} {{teacher.lastName}}
@@ -36,7 +36,7 @@
             <textarea matInput rows="8" formControlName="description"></textarea>
           </mat-form-field>
           <div fxLayout="row" fxLayoutAlign="center center">
-            <button mat-raised-button color="primary" type="submit" [disabled]="sessionForm.invalid">
+            <button mat-raised-button color="primary" type="submit" data-testid="save-button" [disabled]="sessionForm.invalid">
               Save
             </button>
           </div>

@@ -37,6 +37,7 @@ export class FormComponent implements OnInit {
   ngOnInit(): void {
     if (!this.sessionService.sessionInformation!.admin) {
       this.router.navigate(['/sessions']);
+      return;
     }
     const url: string = this.router.url;
     if (url.includes('update')) {
@@ -85,7 +86,7 @@ export class FormComponent implements OnInit {
         session ? session.description : '',
         [
           Validators.required,
-          Validators.max(2000)
+          Validators.maxLength(2000)
         ]
       ],
     });
