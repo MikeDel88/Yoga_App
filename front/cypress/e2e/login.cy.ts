@@ -1,4 +1,4 @@
-import { VALID_EMAIL, VALID_PASSWORD } from '../support/testData'
+import { VALID_EMAIL, VALID_PASSWORD } from '../support/authData'
 
 describe('Login page', () => {
   beforeEach(() => cy.visit('/login'))
