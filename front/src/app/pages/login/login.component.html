@@ -11,7 +11,7 @@
                 <mat-form-field fxFlex>
                     <input matInput [type]="hide ? 'password' : 'text'" placeholder="Password"
                         data-testid="password" formControlName="password">
-                    <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'"
+                    <button mat-icon-button matSuffix (click)="hide = !hide" data-testid="visibility-password" [attr.aria-label]="'Hide password'"
                         [attr.aria-pressed]="hide">
                         <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
                     </button>
@@ -19,7 +19,7 @@
             </mat-card-content>
             <button mat-raised-button color="primary" type="submit" data-testid="submit" [disabled]="form.invalid">Submit</button>
             @if(onError) {
-              <p class="error">An error occurred</p>
+              <p class="error" data-testid="error">An error occurred</p>
             }
         </form>
     </mat-card>
