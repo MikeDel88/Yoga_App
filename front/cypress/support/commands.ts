@@ -2,10 +2,16 @@
 // This example namespace declaration will help
 // with Intellisense and code completion in your
 // IDE or Text Editor.
+
+import { VALID_EMAIL, VALID_PASSWORD } from "./authData";
+
 // ***********************************************
-declare namespace Cypress {
-  interface Chainable {
-    getBySelector(selector: string): Chainable<JQuery>;
+declare global {
+  namespace Cypress {
+    interface Chainable {
+      getBySelector(selector): Chainable<JQuery>
+      login(admin?: boolean): void
+    }
   }
 }
 //
@@ -44,4 +50,19 @@ declare namespace Cypress {
 
 Cypress.Commands.add("getBySelector", (selector) => {
   return cy.get(`[data-testid=${selector}]`)
+})
+
+Cypress.Commands.add('login', (admin = false) => {
+  cy.intercept('POST', '/api/auth/login', {
+    body: {
+      id: 1, username: 'userName', firstName: 'firstName',
+      lastName: 'lastName', admin, token: 'fake-jwt-token'
+    },
+  })
+  cy.intercept('GET', '/api/session', {})
+  cy.visit('/login')
+  cy.getBySelector('email').type(VALID_EMAIL)
+  cy.getBySelector('password').type(VALID_PASSWORD)
+  cy.getBySelector('submit').click()
+  cy.url().should('include', '/sessions')
 })
