@@ -10,7 +10,7 @@ declare global {
   namespace Cypress {
     interface Chainable {
       getBySelector(selector): Chainable<JQuery>
-      login(admin?: boolean): void
+      login(admin?: boolean, sessions?: unknown[]): void
     }
   }
 }
@@ -52,14 +52,14 @@ Cypress.Commands.add("getBySelector", (selector) => {
   return cy.get(`[data-testid=${selector}]`)
 })
 
-Cypress.Commands.add('login', (admin = false) => {
+Cypress.Commands.add('login', (admin = false, sessions = []) => {
   cy.intercept('POST', '/api/auth/login', {
     body: {
       id: 1, username: 'userName', firstName: 'firstName',
       lastName: 'lastName', admin, token: 'fake-jwt-token'
     },
   })
-  cy.intercept('GET', '/api/session', {})
+  cy.intercept('GET', '/api/session', sessions)
   cy.visit('/login')
   cy.getBySelector('email').type(VALID_EMAIL)
   cy.getBySelector('password').type(VALID_PASSWORD)
