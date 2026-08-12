@@ -116,9 +116,11 @@ describe('Update Session Page', () => {
 
   beforeEach(() => {
     cy.login(true, [mockSession])
-    cy.intercept('GET', '/api/teacher', [mockTeacher])
-    cy.intercept('GET', `/api/session/${mockSession.id}`, mockSession)
+    cy.intercept('GET', '/api/teacher', [mockTeacher]).as("teachers")
+    cy.intercept('GET', `/api/session/${mockSession.id}`, mockSession).as("session")
     cy.getBySelector('edit-button').click()
+    cy.wait("@session")
+    cy.wait("@teachers")
   })
 
   it('should display "Update session" as the title', () => {
