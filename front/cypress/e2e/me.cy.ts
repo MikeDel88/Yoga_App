@@ -28,6 +28,14 @@ describe('Me Page', () => {
     cy.getBySelector('user-email').should('have.text', 'Email: yoga@studio.com')
   })
 
+  describe("back navigation", () => {
+    beforeEach(() => goToMePage(false))
+    it("should return to /sessions when clicking the back button", () => {
+      cy.getBySelector("back-button").click()
+      cy.url().should('include', '/sessions')
+    })
+  })
+
   describe('when the user is admin', () => {
     it('should display the admin badge and hide the delete button', () => {
       goToMePage(true)
