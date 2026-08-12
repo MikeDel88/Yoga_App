@@ -3,7 +3,7 @@
 <div class="list">
   <mat-card>
     <mat-card-header fxLayout="row" fxLayoutAlign="space-between center">
-      <mat-card-title class="m0">Rentals available</mat-card-title>
+      <mat-card-title class="m0" data-testid="title">Session available</mat-card-title>
       @if(isAdmin) {
         <button mat-raised-button color="primary" routerLink="create" data-testid="create-button">
           <mat-icon>add</mat-icon>
