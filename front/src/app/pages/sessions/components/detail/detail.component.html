@@ -4,7 +4,7 @@
       <mat-card-title>
         <div fxLayout="row" fxLayoutAlign="space-between center">
           <div fxLayout="row" fxLayoutAlign="start center">
-            <button mat-icon-button (click)="back()">
+            <button mat-icon-button data-testid="back-button" (click)="back()">
               <mat-icon>arrow_back</mat-icon>
             </button>
             <h1 data-testid="session-title">{{session.name | titlecase}}</h1>
@@ -58,7 +58,7 @@
             <mat-icon>
               calendar_month
             </mat-icon>
-            <span class="ml1">{{ session.date | date: 'longDate'}}</span>
+            <span class="ml1" data-testid="session-date">{{ session.date | date: 'longDate'}}</span>
           </div>
         </div>
         <div class="description" data-testid="session-description">
@@ -67,8 +67,8 @@
           <br>
         </div>
         <div class="date my2" fxLayout="row" fxLayoutAlign="space-between center">
-          <div class="created"><i>Create at: </i> {{ session.createdAt| date: 'longDate'}}</div>
-          <div class="updated"><i>Last update: </i> {{ session.updatedAt| date: 'longDate'}}</div>
+          <div class="created" data-testid="session-created-at"><i>Create at: </i> {{ session.createdAt| date: 'longDate'}}</div>
+          <div class="updated" data-testid="session-updated-at"><i>Last update: </i> {{ session.updatedAt| date: 'longDate'}}</div>
         </div>
       </mat-card-content>
     </mat-card>
