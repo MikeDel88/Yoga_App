@@ -46,10 +46,12 @@ public class UserService {
         String jwt = jwtUtils.generateJwtToken(authentication);
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
-        boolean isAdmin = false;
+        boolean isAdmin;
         User user = this.userRepository.findByEmail(userDetails.getUsername()).orElse(null);
         if (user != null) {
             isAdmin = user.isAdmin();
+        } else {
+            throw new UnauthorizedRequestException();
         }
 
         return new JwtResponse(jwt,
