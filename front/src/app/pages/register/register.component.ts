@@ -1,23 +1,26 @@
-import { Component, inject } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import {Component, DestroyRef, inject} from '@angular/core';
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/service/auth.service';
 import { RegisterRequest } from '../../core/models/registerRequest.interface';
 import { MaterialModule } from "../../shared/material.module";
 import { CommonModule } from "@angular/common";
+import {FlexLayoutModule} from "@angular/flex-layout";
+import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 @Component({
   selector: 'app-register',
-  imports: [CommonModule, MaterialModule],
+  imports: [CommonModule, MaterialModule, FlexLayoutModule],
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss']
 })
 export class RegisterComponent {
-  private authService = inject(AuthService);
-  private fb = inject(FormBuilder);
-  private router = inject(Router);
-  public onError = false;
+  private authService: AuthService = inject(AuthService);
+  private fb: FormBuilder = inject(FormBuilder);
+  private router: Router = inject(Router);
+  public onError: boolean = false;
+  private destroyRef: DestroyRef = inject(DestroyRef);
 
-  public form = this.fb.group({
+  public form: FormGroup = this.fb.group({
     email: [
       '',
       [
@@ -29,24 +32,24 @@ export class RegisterComponent {
       '',
       [
         Validators.required,
-        Validators.min(3),
-        Validators.max(20)
+        Validators.minLength(3),
+        Validators.maxLength(20)
       ]
     ],
     lastName: [
       '',
       [
         Validators.required,
-        Validators.min(3),
-        Validators.max(20)
+        Validators.minLength(3),
+        Validators.maxLength(20)
       ]
     ],
     password: [
       '',
       [
         Validators.required,
-        Validators.min(3),
-        Validators.max(40)
+        Validators.minLength(4),
+        Validators.maxLength(40)
       ]
     ]
   });
@@ -54,11 +57,15 @@ export class RegisterComponent {
 
   public submit(): void {
     const registerRequest = this.form.value as RegisterRequest;
-    this.authService.register(registerRequest).subscribe({
-        next: (_: void) => this.router.navigate(['/login']),
-        error: _ => this.onError = true,
-      }
-    );
+    this.authService.register(registerRequest)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (): Promise<boolean> => {
+          this.onError = false;
+          return this.router.navigate(['/login']);
+        },
+        error: (): boolean => this.onError = true,
+      });
   }
 
 }

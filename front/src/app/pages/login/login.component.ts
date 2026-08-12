@@ -1,5 +1,5 @@
-import { Component, inject } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import {Component, DestroyRef, inject} from '@angular/core';
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import { Router } from '@angular/router';
 import { SessionInformation } from 'src/app/core/models/sessionInformation.interface';
 import { SessionService } from 'src/app/core/service/session.service';
@@ -7,23 +7,26 @@ import { LoginRequest } from '../../core/models/loginRequest.interface';
 import { AuthService } from '../../core/service/auth.service';
 import {MaterialModule} from "../../shared/material.module";
 import { CommonModule } from '@angular/common';
+import {FlexLayoutModule} from "@angular/flex-layout";
+import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 
 @Component({
   selector: 'app-login',
-  imports: [CommonModule, MaterialModule],
+  imports: [CommonModule, MaterialModule, FlexLayoutModule],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
 export class LoginComponent {
-  private authService = inject(AuthService);
-  private fb = inject(FormBuilder);
-  private router = inject(Router);
-  private sessionService = inject(SessionService);
+  private authService: AuthService = inject(AuthService);
+  private fb: FormBuilder = inject(FormBuilder);
+  private router: Router = inject(Router);
+  private sessionService: SessionService = inject(SessionService);
+  private destroyRef: DestroyRef = inject(DestroyRef);
 
-  public hide = true;
-  public onError = false;
+  public hide: boolean = true;
+  public onError: boolean = false;
 
-  public form = this.fb.group({
+  public form: FormGroup = this.fb.group({
     email: [
       '',
       [
@@ -35,19 +38,22 @@ export class LoginComponent {
       '',
       [
         Validators.required,
-        Validators.min(3)
+        Validators.minLength(4)
       ]
     ]
   });
 
   public submit(): void {
     const loginRequest = this.form.value as LoginRequest;
-    this.authService.login(loginRequest).subscribe({
-      next: (response: SessionInformation) => {
-        this.sessionService.logIn(response);
-        this.router.navigate(['/sessions']);
-      },
-      error: error => this.onError = true,
-    });
+    this.authService.login(loginRequest)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response: SessionInformation) => {
+          this.onError = false;
+          this.sessionService.logIn(response);
+          this.router.navigate(['/sessions']);
+        },
+        error: (): boolean => this.onError = true,
+      });
   }
 }

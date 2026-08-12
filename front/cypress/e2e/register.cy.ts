@@ -1,22 +1,14 @@
-import { VALID_EMAIL, VALID_PASSWORD } from '../support/authData'
+import { VALID_EMAIL, VALID_PASSWORD, VALID_FIRST_NAME, VALID_LAST_NAME } from '../support/authData'
 
-describe('Login page', () => {
-  beforeEach(() => cy.visit('/login'))
+describe('Register page', () => {
+  beforeEach(() => cy.visit('/register'))
 
   describe('form validation', () => {
-    it('should disable submit when email and password are blank', () => {
+    it('should disable submit when all fields are blank', () => {
       cy.getBySelector('email').type(' ')
       cy.getBySelector('password').type(' ')
-      cy.getBySelector('submit').should('be.disabled')
-    })
-
-    it('should disable submit when email is missing', () => {
-      cy.getBySelector('password').type(VALID_PASSWORD)
-      cy.getBySelector('submit').should('be.disabled')
-    })
-
-    it('should disable submit when password is missing', () => {
-      cy.getBySelector('email').type(VALID_EMAIL)
+      cy.getBySelector('firstName').type(' ')
+      cy.getBySelector('lastName').type(' ')
       cy.getBySelector('submit').should('be.disabled')
     })
 
@@ -47,45 +39,33 @@ describe('Login page', () => {
         .type(password.repeat(4))
         .should('have.class', 'ng-valid')
     })
-
-    it('should toggle password visibility when clicking the eye icon', () => {
-      cy.getBySelector('password').type('yoga')
-      cy.getBySelector('password').should('have.attr', 'type', 'password')
-
-      cy.getBySelector('visibility-password').click()
-      cy.getBySelector('password').should('have.attr', 'type', 'text')
-
-      cy.getBySelector('visibility-password').click()
-      cy.getBySelector('password').should('have.attr', 'type', 'password')
-    })
   })
 
   describe('submission', () => {
-    it('should redirect to /sessions on successful login', () => {
-      cy.intercept('POST', '/api/auth/login', {
-        body: {
-          id: 1,
-          username: 'userName',
-          firstName: 'firstName',
-          lastName: 'lastName',
-          admin: true
-        },
+    it('should redirect to /login on successful registration', () => {
+      cy.intercept('POST', '/api/auth/register', {
+        statusCode: 200,
+        body: {}
       })
 
+      cy.getBySelector('firstName').type(VALID_FIRST_NAME)
+      cy.getBySelector('lastName').type(VALID_LAST_NAME)
       cy.getBySelector('email').type(VALID_EMAIL)
       cy.getBySelector('password').type(VALID_PASSWORD)
       cy.getBySelector('submit').click()
 
-      cy.url().should('include', '/sessions')
+      cy.url().should('include', '/login')
     })
 
-    it('should display an error message when login is rejected', () => {
-      cy.intercept('POST', '/api/auth/login', {
+    it('should display an error message when registration is rejected', () => {
+      cy.intercept('POST', '/api/auth/register', {
         statusCode: 401,
       })
 
       cy.getBySelector('error').should('not.exist')
 
+      cy.getBySelector('firstName').type(VALID_FIRST_NAME)
+      cy.getBySelector('lastName').type(VALID_LAST_NAME)
       cy.getBySelector('email').type(VALID_EMAIL)
       cy.getBySelector('password').type(VALID_PASSWORD)
       cy.getBySelector('submit').click()
@@ -94,10 +74,12 @@ describe('Login page', () => {
     })
 
     it('should not execute scripts injected into the password field', () => {
-      cy.intercept('POST', '/api/auth/login', {
+      cy.intercept('POST', '/api/auth/register', {
         statusCode: 401,
       })
 
+      cy.getBySelector('firstName').type(VALID_FIRST_NAME)
+      cy.getBySelector('lastName').type(VALID_LAST_NAME)
       cy.getBySelector('email').type(VALID_EMAIL)
       cy.getBySelector('password').type(`<script>alert("XSS")</script>`)
 

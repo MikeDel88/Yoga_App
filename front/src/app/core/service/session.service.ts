@@ -7,10 +7,10 @@ import { SessionInformation } from '../models/sessionInformation.interface';
 })
 export class SessionService {
 
-  public isLogged = false;
+  public isLogged: boolean = false;
   public sessionInformation: SessionInformation | undefined;
 
-  private isLoggedSubject = new BehaviorSubject<boolean>(this.isLogged);
+  private isLoggedSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(this.isLogged);
 
   public $isLogged(): Observable<boolean> {
     return this.isLoggedSubject.asObservable();

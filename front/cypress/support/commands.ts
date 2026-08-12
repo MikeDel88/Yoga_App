@@ -2,12 +2,18 @@
 // This example namespace declaration will help
 // with Intellisense and code completion in your
 // IDE or Text Editor.
+
+import { VALID_EMAIL, VALID_PASSWORD } from "./authData";
+
 // ***********************************************
-// declare namespace Cypress {
-//   interface Chainable<Subject = any> {
-//     customCommand(param: any): typeof customCommand;
-//   }
-// }
+declare global {
+  namespace Cypress {
+    interface Chainable {
+      getBySelector(selector): Chainable<JQuery>
+      login(admin?: boolean, sessions?: unknown[]): void
+    }
+  }
+}
 //
 // function customCommand(param: any): void {
 //   console.warn(param);
@@ -41,3 +47,22 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
+
+Cypress.Commands.add("getBySelector", (selector) => {
+  return cy.get(`[data-testid=${selector}]`)
+})
+
+Cypress.Commands.add('login', (admin = false, sessions = []) => {
+  cy.intercept('POST', '/api/auth/login', {
+    body: {
+      id: 1, username: 'userName', firstName: 'firstName',
+      lastName: 'lastName', admin, token: 'fake-jwt-token'
+    },
+  })
+  cy.intercept('GET', '/api/session', sessions)
+  cy.visit('/login')
+  cy.getBySelector('email').type(VALID_EMAIL)
+  cy.getBySelector('password').type(VALID_PASSWORD)
+  cy.getBySelector('submit').click()
+  cy.url().should('include', '/sessions')
+})
