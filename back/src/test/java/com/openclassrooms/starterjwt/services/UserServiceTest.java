@@ -47,6 +47,10 @@ public class UserServiceTest {
     @InjectMocks
     private UserService userService;
 
+    /**
+     * Garantit l'isolation des tests : chaque test démarre avec un SecurityContextHolder vide,
+     * indépendamment de ce que les tests précédents y ont mis.
+     */
     @AfterEach
     public void tearDown() {
         SecurityContextHolder.clearContext();
@@ -84,7 +88,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void authenticateUser_userNotFoundInDatabase_throwsUnauthorized() {
+    public void authenticateUser_userNotFoundInDatabase_returnsNonAdminJwtResponse() {
         UserDetailsImpl userDetails = UserDetailsImpl.builder()
                 .id(1L)
                 .username("test@test.com")
@@ -96,14 +100,18 @@ public class UserServiceTest {
         Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(authentication);
+        when(jwtUtils.generateJwtToken(authentication)).thenReturn("fake-jwt-token");
         when(userRepository.findByEmail("test@test.com")).thenReturn(Optional.empty());
 
         LoginRequest loginRequest = new LoginRequest();
         loginRequest.setEmail("test@test.com");
         loginRequest.setPassword("test!31");
 
-        assertThatThrownBy(() -> userService.authenticateUser(loginRequest))
-                .isInstanceOf(UnauthorizedRequestException.class);
+        JwtResponse jwtResponse = userService.authenticateUser(loginRequest);
+
+        assertThat(jwtResponse.getToken()).isEqualTo("fake-jwt-token");
+        assertThat(jwtResponse.getUsername()).isEqualTo("test@test.com");
+        assertThat(jwtResponse.getAdmin()).isFalse();
     }
 
     @Test
