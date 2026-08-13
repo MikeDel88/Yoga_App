@@ -1,4 +1,4 @@
-package com.openclassrooms.starterjwt.controllers;
+package com.openclassrooms.starterjwt.controllers.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.openclassrooms.starterjwt.models.User;
@@ -39,90 +39,76 @@ public class AuthControllerIntegrationTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    @Test
-    public void registerSuccessfully() throws Exception {
+    private static SignupRequest validSignupRequest() {
         SignupRequest signupRequest = new SignupRequest();
-        signupRequest.setEmail("integration-test@test.com");
+        signupRequest.setEmail("testeur@test.com");
         signupRequest.setFirstName("test");
         signupRequest.setLastName("test");
         signupRequest.setPassword("test!31");
+        return signupRequest;
+    }
 
-        RequestBuilder requestBuilder = MockMvcRequestBuilders
-                .post("/api/auth/register")
+    private void persistUser() {
+        userRepository.save(new User("testeur@test.com", "test", "test",
+                passwordEncoder.encode("test!31"), false));
+    }
+
+    private RequestBuilder postJson(String uri, Object body) throws Exception {
+        return MockMvcRequestBuilders
+                .post(uri)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(signupRequest));
+                .content(objectMapper.writeValueAsString(body));
+    }
 
-        mockMvc.perform(requestBuilder)
+    @Test
+    public void register_success() throws Exception {
+        mockMvc.perform(postJson("/api/auth/register", validSignupRequest()))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("User registered successfully!"));
 
-        User savedUser = userRepository.findByEmail("integration-test@test.com").orElse(null);
+        User savedUser = userRepository.findByEmail("testeur@test.com").orElse(null);
         assertThat(savedUser).isNotNull();
         assertThat(savedUser.getPassword()).isNotEqualTo("test!31");
     }
 
     @Test
-    public void registerFailedExistingEmail() throws Exception {
-        userRepository.save(new User("integration-test@test.com", "test", "test",
-                passwordEncoder.encode("test!31"), false));
+    public void register_emailAlreadyTaken_returnsBadRequest() throws Exception {
+        persistUser();
 
-        SignupRequest signupRequest = new SignupRequest();
-        signupRequest.setEmail("integration-test@test.com");
-        signupRequest.setFirstName("test");
-        signupRequest.setLastName("test");
-        signupRequest.setPassword("test!31");
-
-        RequestBuilder requestBuilder = MockMvcRequestBuilders
-                .post("/api/auth/register")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(signupRequest));
-
-        mockMvc.perform(requestBuilder)
+        mockMvc.perform(postJson("/api/auth/register", validSignupRequest()))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Error: Email is already taken!"));
     }
 
     @Test
-    public void loginFailed() throws Exception {
-        userRepository.save(new User("integration-test@test.com", "test", "test",
-                passwordEncoder.encode("test!31"), false));
+    public void login_wrongPassword_returnsUnauthorized() throws Exception {
+        persistUser();
 
         LoginRequest loginRequest = new LoginRequest();
-        loginRequest.setEmail("integration-test@test.com");
+        loginRequest.setEmail("testeur@test.com");
         loginRequest.setPassword("wrong-password");
 
-        RequestBuilder requestBuilder = MockMvcRequestBuilders
-                .post("/api/auth/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(loginRequest));
-
-        mockMvc.perform(requestBuilder)
+        mockMvc.perform(postJson("/api/auth/login", loginRequest))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
-    public void loginSuccess() throws Exception {
-        userRepository.save(new User("integration-test@test.com", "test", "test",
-                passwordEncoder.encode("test!31"), false));
+    public void login_success() throws Exception {
+        persistUser();
 
         LoginRequest loginRequest = new LoginRequest();
-        loginRequest.setEmail("integration-test@test.com");
+        loginRequest.setEmail("testeur@test.com");
         loginRequest.setPassword("test!31");
 
-        RequestBuilder requestBuilder = MockMvcRequestBuilders
-                .post("/api/auth/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(loginRequest));
-
-        mockMvc.perform(requestBuilder)
+        mockMvc.perform(postJson("/api/auth/login", loginRequest))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.token").isNotEmpty())
                 .andExpect(jsonPath("$.type").value("Bearer"))
-                .andExpect(jsonPath("$.username").value("integration-test@test.com"))
+                .andExpect(jsonPath("$.username").value("testeur@test.com"))
                 .andExpect(jsonPath("$.firstName").value("test"))
                 .andExpect(jsonPath("$.lastName").value("test"))
                 .andExpect(jsonPath("$.admin").value(false));
