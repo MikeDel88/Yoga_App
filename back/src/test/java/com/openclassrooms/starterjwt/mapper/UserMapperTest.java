@@ -76,8 +76,8 @@ class UserMapperTest {
         List<UserDto> userDtos = userMapper.toDto(List.of(user));
 
         assertThat(userDtos).hasSize(1);
-        assertThat(userDtos.get(0).getId()).isEqualTo(1L);
-        assertThat(userDtos.get(0).getEmail()).isEqualTo("test@test.com");
+        assertThat(userDtos.getFirst().getId()).isEqualTo(1L);
+        assertThat(userDtos.getFirst().getEmail()).isEqualTo("test@test.com");
     }
 
     @Test
@@ -97,8 +97,8 @@ class UserMapperTest {
         List<User> users = userMapper.toEntity(List.of(userDto));
 
         assertThat(users).hasSize(1);
-        assertThat(users.get(0).getId()).isEqualTo(1L);
-        assertThat(users.get(0).getEmail()).isEqualTo("test@test.com");
+        assertThat(users.getFirst().getId()).isEqualTo(1L);
+        assertThat(users.getFirst().getEmail()).isEqualTo("test@test.com");
     }
 
     @Test

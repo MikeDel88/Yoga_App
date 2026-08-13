@@ -4,10 +4,13 @@ import com.openclassrooms.starterjwt.models.Teacher;
 import com.openclassrooms.starterjwt.models.User;
 import com.openclassrooms.starterjwt.repository.TeacherRepository;
 import com.openclassrooms.starterjwt.repository.UserRepository;
+import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
@@ -41,25 +44,22 @@ public class TeacherControllerIntegrationTest {
     @Autowired
     private UserDetailsService userDetailsService;
 
-    private User setupUser() {
-        return userRepository.save(new User("testeur@test.com", "test", "test",
+    private UserDetails savedUserDetails;
+
+    @BeforeEach
+    public void setupUser() {
+        User savedUser = userRepository.save(new User("testeur@test.com", "test", "test",
                 passwordEncoder.encode("test!31"), false));
+        savedUserDetails = userDetailsService.loadUserByUsername(savedUser.getEmail());
     }
 
-    private Teacher setupTeacher() {
-        Teacher teacher = new Teacher();
-        teacher.setFirstName("John");
-        teacher.setLastName("Doe");
-        return teacherRepository.save(teacher);
-    }
 
     @Test
     public void findById_success() throws Exception {
-        User savedUser = setupUser();
         Teacher savedTeacher = setupTeacher();
 
-        mockMvc.perform(get("/api/teacher/" + savedTeacher.getId())
-                        .with(user(userDetailsService.loadUserByUsername(savedUser.getEmail()))))
+        mockMvc.perform(get(getUriTeacher(savedTeacher.getId()))
+                        .with(user(savedUserDetails)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(savedTeacher.getId()))
@@ -69,22 +69,20 @@ public class TeacherControllerIntegrationTest {
 
     @Test
     public void findById_teacherNotFound_returnsNotFound() throws Exception {
-        User savedUser = setupUser();
 
-        mockMvc.perform(get("/api/teacher/1")
-                        .with(user(userDetailsService.loadUserByUsername(savedUser.getEmail()))))
+        mockMvc.perform(get(getUriTeacher(1L))
+                        .with(user(savedUserDetails)))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
 
     @Test
     public void findAll_success() throws Exception {
-        User savedUser = setupUser();
         setupTeacher();
         setupTeacher();
 
-        mockMvc.perform(get("/api/teacher")
-                        .with(user(userDetailsService.loadUserByUsername(savedUser.getEmail()))))
+        mockMvc.perform(get(getUriTeachers())
+                        .with(user(savedUserDetails)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isNotEmpty())
@@ -94,13 +92,27 @@ public class TeacherControllerIntegrationTest {
 
     @Test
     public void findAll_teachersEmpty_returnsArrayEmpty() throws Exception {
-        User savedUser = setupUser();
 
-        mockMvc.perform(get("/api/teacher")
-                        .with(user(userDetailsService.loadUserByUsername(savedUser.getEmail()))))
+        mockMvc.perform(get(getUriTeachers())
+                        .with(user(savedUserDetails)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    private String getUriTeachers() {
+        return "/api/teacher";
+    }
+
+    private String getUriTeacher(Long teacherId) {
+        return "/api/teacher/" + teacherId;
+    }
+
+    private Teacher setupTeacher() {
+        Teacher teacher = new Teacher();
+        teacher.setFirstName("John");
+        teacher.setLastName("Doe");
+        return teacherRepository.save(teacher);
     }
 }

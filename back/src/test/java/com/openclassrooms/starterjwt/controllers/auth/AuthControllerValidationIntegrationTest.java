@@ -3,7 +3,6 @@ package com.openclassrooms.starterjwt.controllers.auth;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.openclassrooms.starterjwt.payload.request.LoginRequest;
 import com.openclassrooms.starterjwt.payload.request.SignupRequest;
-import org.junit.jupiter.api.Named;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -20,7 +19,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.util.function.Consumer;
 import java.util.stream.Stream;
-
+import static com.openclassrooms.starterjwt.testsupport.ParameterizedValidationSupport.invalidCase;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -34,7 +33,8 @@ public class AuthControllerValidationIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    @Autowired
+    private ObjectMapper objectMapper;
 
     private static SignupRequest validSignupRequest() {
         SignupRequest signupRequest = new SignupRequest();
@@ -52,9 +52,6 @@ public class AuthControllerValidationIntegrationTest {
         return loginRequest;
     }
 
-    private static <T> Arguments invalidCase(String name, Consumer<T> mutation) {
-        return Arguments.of(Named.of(name, mutation));
-    }
 
     static Stream<Arguments> invalidSignupRequests() {
         return Stream.of(

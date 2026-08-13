@@ -178,12 +178,7 @@ public class UserServiceTest {
         user.setId(1L);
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
-        UserDetailsImpl userDetails = UserDetailsImpl.builder()
-                .id(1L)
-                .username("test@test.com")
-                .build();
-        SecurityContextHolder.getContext()
-                .setAuthentication(new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities()));
+        createUserDetails(1L, "test@test.com");
 
         userService.delete(1L);
 
@@ -196,16 +191,20 @@ public class UserServiceTest {
         user.setId(1L);
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
-        UserDetailsImpl userDetails = UserDetailsImpl.builder()
-                .id(2L)
-                .username("someone-else@test.com")
-                .build();
-        SecurityContextHolder.getContext()
-                .setAuthentication(new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities()));
+        createUserDetails(2L, "someone-else@test.com");
 
         assertThatThrownBy(() -> userService.delete(1L))
                 .isInstanceOf(UnauthorizedRequestException.class);
 
         verify(userRepository, never()).deleteById(any());
+    }
+
+    private void createUserDetails(Long userId, String email) {
+        UserDetailsImpl userDetails = UserDetailsImpl.builder()
+                .id(userId)
+                .username(email)
+                .build();
+        SecurityContextHolder.getContext()
+                .setAuthentication(new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities()));
     }
 }

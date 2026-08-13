@@ -71,8 +71,8 @@ class TeacherMapperTest {
         List<TeacherDto> teacherDtos = teacherMapper.toDto(List.of(teacher));
 
         assertThat(teacherDtos).hasSize(1);
-        assertThat(teacherDtos.get(0).getId()).isEqualTo(1L);
-        assertThat(teacherDtos.get(0).getFirstName()).isEqualTo("john");
+        assertThat(teacherDtos.getFirst().getId()).isEqualTo(1L);
+        assertThat(teacherDtos.getFirst().getFirstName()).isEqualTo("john");
     }
 
     @Test
@@ -90,8 +90,8 @@ class TeacherMapperTest {
         List<Teacher> teachers = teacherMapper.toEntity(List.of(teacherDto));
 
         assertThat(teachers).hasSize(1);
-        assertThat(teachers.get(0).getId()).isEqualTo(1L);
-        assertThat(teachers.get(0).getFirstName()).isEqualTo("john");
+        assertThat(teachers.getFirst().getId()).isEqualTo(1L);
+        assertThat(teachers.getFirst().getFirstName()).isEqualTo("john");
     }
 
     @Test

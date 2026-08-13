@@ -49,10 +49,10 @@ public class SessionServiceTest {
 
     @Test
     public void findAll_found_returnsSessions() {
-        Teacher teacher = new Teacher(1L, "test", "test", LocalDateTime.now(), LocalDateTime.now());
+        Teacher teacher = createTeacher();
         List<Session> sessions = List.of(
-                new Session(1L, "Yoga Session", new Date(), "Yoga session description", teacher, List.of(), LocalDateTime.now(), LocalDateTime.now()),
-                new Session(2L, "Yoga Session 2", new Date(), "Yoga session description 2", teacher, List.of(), LocalDateTime.now(), LocalDateTime.now())
+                createSession(1L, teacher, new ArrayList<>()),
+                createSession(2L, teacher, new ArrayList<>())
         );
         when(sessionRepository.findAll()).thenReturn(sessions);
 
@@ -64,8 +64,8 @@ public class SessionServiceTest {
 
     @Test
     public void findById_found_returnsSession() {
-        Teacher teacher = new Teacher(1L, "test", "test", LocalDateTime.now(), LocalDateTime.now());
-        Session session = new Session(1L, "Yoga Session", new Date(), "Yoga session description", teacher, List.of(), LocalDateTime.now(), LocalDateTime.now());
+        Teacher teacher = createTeacher();
+        Session session = createSession(1L, teacher, new ArrayList<>());
 
         when(sessionRepository.findById(1L)).thenReturn(Optional.of(session));
 
@@ -84,8 +84,8 @@ public class SessionServiceTest {
 
     @Test
     public void create_success_returnsSession() {
-        Teacher teacher = new Teacher(1L, "test", "test", LocalDateTime.now(), LocalDateTime.now());
-        Session session = new Session(null, "Yoga Session", new Date(), "Yoga session description", teacher, List.of(), LocalDateTime.now(), LocalDateTime.now());
+        Teacher teacher = createTeacher();
+        Session session = createSession(1L, teacher, new ArrayList<>());
 
         when(sessionRepository.save(session)).thenReturn(session.setId(1L));
         Session result = sessionService.create(session);
@@ -96,8 +96,8 @@ public class SessionServiceTest {
 
     @Test
     public void delete_success() {
-        Teacher teacher = new Teacher(1L, "test", "test", LocalDateTime.now(), LocalDateTime.now());
-        Session session = new Session(1L, "Yoga Session", new Date(), "Yoga session description", teacher, List.of(), LocalDateTime.now(), LocalDateTime.now());
+        Teacher teacher = createTeacher();
+        Session session = createSession(1L, teacher, new ArrayList<>());
 
         when(sessionRepository.findById(1L)).thenReturn(Optional.of(session));
 
@@ -118,8 +118,8 @@ public class SessionServiceTest {
 
     @Test
     public void update_success_returnsSession() {
-        Teacher teacher = new Teacher(1L, "test", "test", LocalDateTime.now(), LocalDateTime.now());
-        Session session = new Session(null, "Yoga Session", new Date(), "Yoga session description", teacher, List.of(), LocalDateTime.now(), LocalDateTime.now());
+        Teacher teacher = createTeacher();
+        Session session = createSession(1L, teacher, new ArrayList<>());
 
         when(sessionRepository.save(session)).thenReturn(session.setName("Yoga Mania"));
         Session result = sessionService.update(1L, session);
@@ -131,10 +131,9 @@ public class SessionServiceTest {
 
     @Test
     public void participate_success() {
-        Teacher teacher = new Teacher(1L, "test", "test", LocalDateTime.now(), LocalDateTime.now());
-        Session session = new Session(1L, "Yoga Session", new Date(), "Yoga session description", teacher, new ArrayList<>(), LocalDateTime.now(), LocalDateTime.now());
-        User user = new User("test@test.com", "test", "test", "password-encoded",false);
-        user.setId(1L);
+        Teacher teacher = createTeacher();
+        Session session = createSession(1L, teacher, new ArrayList<>());
+        User user = createUser("test@test.com", 1L);
 
         when(sessionRepository.findById(1L)).thenReturn(Optional.of(session));
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
@@ -160,8 +159,8 @@ public class SessionServiceTest {
 
     @Test
     public void participate_userNotFound_throwsNotFoundException() {
-        Teacher teacher = new Teacher(1L, "test", "test", LocalDateTime.now(), LocalDateTime.now());
-        Session session = new Session(1L, "Yoga Session", new Date(), "Yoga session description", teacher, new ArrayList<>(), LocalDateTime.now(), LocalDateTime.now());
+        Teacher teacher = createTeacher();
+        Session session = createSession(1L, teacher, new ArrayList<>());
 
         when(sessionRepository.findById(1L)).thenReturn(Optional.of(session));
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
@@ -174,10 +173,10 @@ public class SessionServiceTest {
 
     @Test
     public void participate_userAlReadyParticipate_throwsBadRequestException() {
-        User user = new User("test@test.com", "test", "test", "password-encoded",false);
+        User user = createUser("test@test.com", 1L);
         user.setId(1L);
-        Teacher teacher = new Teacher(1L, "test", "test", LocalDateTime.now(), LocalDateTime.now());
-        Session session = new Session(1L, "Yoga Session", new Date(), "Yoga session description", teacher, List.of(user), LocalDateTime.now(), LocalDateTime.now());
+        Teacher teacher = createTeacher();
+        Session session = createSession(1L, teacher, List.of(user));
 
         when(sessionRepository.findById(1L)).thenReturn(Optional.of(session));
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
@@ -190,10 +189,9 @@ public class SessionServiceTest {
 
     @Test
     public void noLongerparticipate_success() {
-        User user = new User("test@test.com", "test", "test", "password-encoded",false);
-        user.setId(1L);
-        Teacher teacher = new Teacher(1L, "test", "test", LocalDateTime.now(), LocalDateTime.now());
-        Session session = new Session(1L, "Yoga Session", new Date(), "Yoga session description", teacher, List.of(user), LocalDateTime.now(), LocalDateTime.now());
+        User user = createUser("test@test.com", 1L);
+        Teacher teacher = createTeacher();
+        Session session = createSession(1L, teacher, List.of(user));
 
         when(sessionRepository.findById(1L)).thenReturn(Optional.of(session));
 
@@ -208,14 +206,11 @@ public class SessionServiceTest {
 
     @Test
     public void noLongerParticipate_multipleUsers_removesOnlyTargetUser() {
-        User userToRemove = new User("remove@test.com", "test", "test", "password-encoded", false);
-        userToRemove.setId(1L);
-        User userToKeep = new User("keep@test.com", "test", "test", "password-encoded", false);
-        userToKeep.setId(2L);
+        User userToRemove = createUser("remove@test.com", 1L);
+        User userToKeep = createUser("keep@test.com", 2L);
 
-        Teacher teacher = new Teacher(1L, "test", "test", LocalDateTime.now(), LocalDateTime.now());
-        Session session = new Session(1L, "Yoga Session", new Date(), "Yoga session description",
-                teacher, new ArrayList<>(List.of(userToRemove, userToKeep)), LocalDateTime.now(), LocalDateTime.now());
+        Teacher teacher = createTeacher();
+        Session session = createSession(1L, teacher, new ArrayList<>(List.of(userToRemove, userToKeep)));
 
         when(sessionRepository.findById(1L)).thenReturn(Optional.of(session));
 
@@ -244,8 +239,8 @@ public class SessionServiceTest {
     @Test
     public void noLongerparticipate_userNotParticipate_throwsBadRequestException() {
 
-        Teacher teacher = new Teacher(1L, "test", "test", LocalDateTime.now(), LocalDateTime.now());
-        Session session = new Session(1L, "Yoga Session", new Date(), "Yoga session description", teacher, new ArrayList<>(), LocalDateTime.now(), LocalDateTime.now());
+        Teacher teacher = createTeacher();
+        Session session = createSession(1L, teacher, new ArrayList<>());
 
         when(sessionRepository.findById(1L)).thenReturn(Optional.of(session));
 
@@ -253,5 +248,19 @@ public class SessionServiceTest {
                 .isInstanceOf(BadRequestException.class);
 
         verify(userRepository, never()).save(any());
+    }
+
+    private User createUser(String email, Long userId) {
+        User user = new User(email, "test", "test", "password-encoded", false);
+        user.setId(userId);
+        return user;
+    }
+
+    private Teacher createTeacher() {
+        return new Teacher(1L, "test", "test", LocalDateTime.now(), LocalDateTime.now());
+    }
+
+    private Session createSession(Long sessionId, Teacher teacher, List<User> users) {
+        return new Session(sessionId, "Yoga Session", new Date(), "Yoga session description", teacher, users, LocalDateTime.now(), LocalDateTime.now());
     }
 }

@@ -175,8 +175,8 @@ class SessionMapperTest {
         List<Session> sessions = sessionMapper.toEntity(List.of(sessionDto));
 
         assertThat(sessions).hasSize(1);
-        assertThat(sessions.get(0).getId()).isEqualTo(1L);
-        assertThat(sessions.get(0).getName()).isEqualTo("Yoga Session");
+        assertThat(sessions.getFirst().getId()).isEqualTo(1L);
+        assertThat(sessions.getFirst().getName()).isEqualTo("Yoga Session");
     }
 
     @Test
