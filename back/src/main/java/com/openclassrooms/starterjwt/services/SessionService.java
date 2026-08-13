@@ -27,7 +27,7 @@ public class SessionService {
     }
 
     public void delete(Long id) {
-        Session session = this.getById(id);
+        Session session = this.sessionRepository.findById(id).orElse(null);
         if (session == null) {
             throw new NotFoundException();
         }
