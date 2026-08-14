@@ -121,6 +121,36 @@ La capture d'écran ci-dessous résume les étapes précédentes :
 ![2-docker-desktop-bdd](pictures/2-docker-desktop-bdd.png)
 
 
+## Lancer les tests et couverture de code
+
+### Pré-requis
+
+    -> JDK 21
+    -> Maven 3.9.3 ou plus
+
+### Exécuter les tests
+
+Pour lancer l'ensemble des tests (unitaires et d'intégration), se placer à la racine du projet et exécuter :
+```
+mvn clean test
+```
+
+Cette commande exécute également les vérifications de couverture JaCoCo : le build échoue si les seuils de couverture ne sont pas atteints.
+
+### Exigences de couverture
+
+Le projet impose :
+- au moins **80 %** de couverture sur tous les indicateurs JaCoCo (instructions, branches, lignes, complexité, méthodes, classes) ;
+- au moins **30 %** des méthodes de test qui soient des tests d'intégration (convention de nommage des fichiers en `*IntegrationTest.java`, vérifiée par `TestPyramidRatioTest`).
+
+### Rapport de couverture
+
+Après l'exécution de `mvn clean test`, le rapport HTML de couverture JaCoCo est généré ici :
+```
+target/site/jacoco/index.html
+```
+Ouvrez ce fichier dans un navigateur pour consulter le détail de la couverture par package et par classe.
+
 ## Ressources
 
 
