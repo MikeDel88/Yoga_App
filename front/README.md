@@ -80,3 +80,16 @@ This project enforces a minimum of **80% coverage on all four indicators** — s
   > npm run e2e:coverage:check
 
   This command fails if any of the four indicators is below 80%.
+
+It also enforces a minimum of **30% of Jest tests being integration tests**. By
+convention, spec files split their `it`/`it.each` cases into two nested
+`describe` blocks — `describe('Tests unitaires (...)')` and
+`describe("Tests d'intégration (...)")` — the latter exercising the real
+services/router with only HTTP mocked via `HttpClientTesting` (see
+`login.component.spec.ts`, `register.component.spec.ts`,
+`detail.component.spec.ts`, `form.component.spec.ts`,
+`list.component.spec.ts`, `me.component.spec.ts`). This ratio is checked by
+`src/test-pyramid-ratio.spec.ts`, which runs as a normal test on every
+`npm run test` / `npm run test:coverage` and fails the suite if the 30%
+threshold isn't met — its result appears alongside the rest of the test run
+that produces the coverage report above.

@@ -24,8 +24,4 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NotFoundException.class)
     public void handleNotFoundException() {}
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(IllegalArgumentException.class)
-    public void handleIllegalArgumentException() {}
-
 }
