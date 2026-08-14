@@ -36,6 +36,8 @@ Rapport de couverture HTML :
 back/target/site/jacoco/index.html
 ```
 
+![Couverture JaCoCo (back)](rapports/rapport_jacoco.jpg)
+
 ## Front (`front/`)
 
 ### Prérequis
@@ -62,6 +64,8 @@ Rapport de couverture HTML :
 front/coverage/jest/lcov-report/index.html
 ```
 
+![Couverture Jest (front)](rapports/rapport_jest.jpg)
+
 **Tests end-to-end (Cypress)**
 ```
 npm run e2e
@@ -72,6 +76,8 @@ Rapport de couverture HTML :
 ```
 front/coverage/lcov-report/index.html
 ```
+
+![Couverture Cypress e2e (front)](rapports/rapport_e2e.jpg)
 
 Voir [front/README.md](front/README.md) pour le détail complet (mode watch, mode interactif Cypress, etc.).
 
