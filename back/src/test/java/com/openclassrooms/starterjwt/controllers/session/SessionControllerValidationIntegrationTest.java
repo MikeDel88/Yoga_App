@@ -1,23 +1,26 @@
 package com.openclassrooms.starterjwt.controllers.session;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.openclassrooms.starterjwt.controllers.SessionController;
 import com.openclassrooms.starterjwt.dto.SessionDto;
-import com.openclassrooms.starterjwt.models.User;
-import com.openclassrooms.starterjwt.repository.UserRepository;
+import com.openclassrooms.starterjwt.mapper.SessionMapper;
+import com.openclassrooms.starterjwt.security.WebSecurityConfig;
+import com.openclassrooms.starterjwt.security.jwt.JwtUtils;
+import com.openclassrooms.starterjwt.security.services.UserDetailsImpl;
+import com.openclassrooms.starterjwt.security.services.UserDetailsServiceImpl;
+import com.openclassrooms.starterjwt.services.SessionService;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.util.Date;
@@ -30,29 +33,37 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@AutoConfigureMockMvc
+@WebMvcTest(controllers = SessionController.class)
+@Import(WebSecurityConfig.class)
 @ActiveProfiles("test")
-@Transactional
 public class SessionControllerValidationIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private UserRepository userRepository;
+    @MockitoBean
+    private SessionService sessionService;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    @MockitoBean
+    private SessionMapper sessionMapper;
 
-    @Autowired
-    private UserDetailsService userDetailsService;
+    @MockitoBean
+    private UserDetailsServiceImpl userDetailsService;
+
+    @MockitoBean
+    private JwtUtils jwtUtils;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    private User setupUser() {
-        return userRepository.save(new User("testeur@test.com", "test", "test",
-                passwordEncoder.encode("test!31"), false));
+    private static UserDetailsImpl authenticatedUser() {
+        return UserDetailsImpl.builder()
+                .id(1L)
+                .username("testeur@test.com")
+                .firstName("test")
+                .lastName("test")
+                .admin(false)
+                .password("test!31")
+                .build();
     }
 
     private static SessionDto validSessionDto() {
@@ -78,8 +89,6 @@ public class SessionControllerValidationIntegrationTest {
     @ParameterizedTest(name = "{0}")
     @MethodSource("invalidSessionRequests")
     public void create_invalidSessionRequest_returnsBadRequest(Consumer<SessionDto> mutation) throws Exception {
-        User savedUser = setupUser();
-
         SessionDto sessionDto = validSessionDto();
         mutation.accept(sessionDto);
 
@@ -87,7 +96,7 @@ public class SessionControllerValidationIntegrationTest {
                 .post("/api/session")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(sessionDto))
-                .with(user(userDetailsService.loadUserByUsername(savedUser.getEmail())));
+                .with(user(authenticatedUser()));
 
         mockMvc.perform(requestBuilder)
                 .andDo(print())
