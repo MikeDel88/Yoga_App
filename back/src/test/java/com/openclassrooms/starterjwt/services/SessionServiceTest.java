@@ -1,7 +1,9 @@
 package com.openclassrooms.starterjwt.services;
 
+import com.openclassrooms.starterjwt.dto.SessionDto;
 import com.openclassrooms.starterjwt.exception.BadRequestException;
 import com.openclassrooms.starterjwt.exception.NotFoundException;
+import com.openclassrooms.starterjwt.mapper.SessionMapper;
 import com.openclassrooms.starterjwt.models.Session;
 import com.openclassrooms.starterjwt.models.Teacher;
 import com.openclassrooms.starterjwt.models.User;
@@ -34,6 +36,15 @@ public class SessionServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private SessionMapper sessionMapper;
+
+    @Mock
+    private TeacherService teacherService;
+
+    @Mock
+    private UserService userService;
 
     @InjectMocks
     private SessionService sessionService;
@@ -86,9 +97,13 @@ public class SessionServiceTest {
     public void create_success_returnsSession() {
         Teacher teacher = createTeacher();
         Session session = createSession(1L, teacher, new ArrayList<>());
+        SessionDto sessionDto = createSessionDto(teacher.getId(), new ArrayList<>());
 
+        when(teacherService.findById(teacher.getId())).thenReturn(teacher);
+        when(sessionMapper.toEntity(sessionDto, teacher, new ArrayList<>())).thenReturn(session);
         when(sessionRepository.save(session)).thenReturn(session.setId(1L));
-        Session result = sessionService.create(session);
+
+        Session result = sessionService.create(sessionDto);
 
         assertThat(result).isEqualTo(session);
         assertThat(result.getId()).isEqualTo(1L);
@@ -120,9 +135,13 @@ public class SessionServiceTest {
     public void update_success_returnsSession() {
         Teacher teacher = createTeacher();
         Session session = createSession(1L, teacher, new ArrayList<>());
+        SessionDto sessionDto = createSessionDto(teacher.getId(), new ArrayList<>());
 
+        when(teacherService.findById(teacher.getId())).thenReturn(teacher);
+        when(sessionMapper.toEntity(sessionDto, teacher, new ArrayList<>())).thenReturn(session);
         when(sessionRepository.save(session)).thenReturn(session.setName("Yoga Mania"));
-        Session result = sessionService.update(1L, session);
+
+        Session result = sessionService.update(1L, sessionDto);
 
         assertThat(result).isEqualTo(session);
         assertThat(result.getId()).isEqualTo(1L);
@@ -262,5 +281,15 @@ public class SessionServiceTest {
 
     private Session createSession(Long sessionId, Teacher teacher, List<User> users) {
         return new Session(sessionId, "Yoga Session", new Date(), "Yoga session description", teacher, users, LocalDateTime.now(), LocalDateTime.now());
+    }
+
+    private SessionDto createSessionDto(Long teacherId, List<Long> userIds) {
+        SessionDto sessionDto = new SessionDto();
+        sessionDto.setName("Yoga Session");
+        sessionDto.setDate(new Date());
+        sessionDto.setDescription("Yoga session description");
+        sessionDto.setTeacherId(teacherId);
+        sessionDto.setUsers(userIds);
+        return sessionDto;
     }
 }

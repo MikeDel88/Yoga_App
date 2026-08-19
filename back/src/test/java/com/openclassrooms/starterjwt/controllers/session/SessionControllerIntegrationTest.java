@@ -14,9 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +25,6 @@ import java.util.Date;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -36,6 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @Transactional
+@WithMockUser
 public class SessionControllerIntegrationTest {
 
     @Autowired
@@ -53,8 +52,6 @@ public class SessionControllerIntegrationTest {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private UserDetailsService userDetailsService;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -64,21 +61,18 @@ public class SessionControllerIntegrationTest {
 
     private User savedUser;
 
-    private UserDetails savedUserDetails;
 
     @BeforeEach
     public void setupUser() {
         savedUser = userRepository.save(new User("testeur@test.com", "test", "test",
                 passwordEncoder.encode("test!31"), false));
-        savedUserDetails = userDetailsService.loadUserByUsername(savedUser.getEmail());
     }
 
     @Test
     public void findById_success() throws Exception {
         Session savedSession = setupSession(true);
 
-        mockMvc.perform(get(getUriSession(savedSession.getId()))
-                        .with(user(savedUserDetails)))
+        mockMvc.perform(get(getUriSession(savedSession.getId())))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(savedSession.getId()))
@@ -88,8 +82,7 @@ public class SessionControllerIntegrationTest {
 
     @Test
     public void findById_idIsNotNumber_returnsBadRequest() throws Exception {
-        mockMvc.perform(get("/api/session/test")
-                        .with(user(savedUserDetails)))
+        mockMvc.perform(get("/api/session/test"))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(result ->  assertThat(result.getResolvedException())
@@ -98,8 +91,7 @@ public class SessionControllerIntegrationTest {
 
     @Test
     public void findById_sessionNotExist_returnsNotFound() throws Exception {
-        mockMvc.perform(get(getUriSession(1L))
-                        .with(user(savedUserDetails)))
+        mockMvc.perform(get(getUriSession(1L)))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
@@ -110,8 +102,7 @@ public class SessionControllerIntegrationTest {
         setupSession(true);
         setupSession(true);
 
-        mockMvc.perform(get(getUriSessions())
-                        .with(user(savedUserDetails)))
+        mockMvc.perform(get(getUriSessions()))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isNotEmpty())
@@ -121,22 +112,20 @@ public class SessionControllerIntegrationTest {
 
     @Test
     public void findAll_sessionsEmpty_returnsArrayEmpty() throws Exception {
-        mockMvc.perform(get(getUriSessions())
-                        .with(user(savedUserDetails)))
+        mockMvc.perform(get(getUriSessions()))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(0));
     }
 
+
     @Test
     public void create_session_success() throws Exception {
         Session session = setupSession(false);
-
         mockMvc.perform(post(getUriSessions())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(sessionMapper.toDto(session)))
-                .with(user(userDetailsService.loadUserByUsername(savedUser.getEmail()))))
+                .content(objectMapper.writeValueAsString(sessionMapper.toDto(session))))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
@@ -145,11 +134,9 @@ public class SessionControllerIntegrationTest {
     public void update_session_success() throws Exception {
         Session session = setupSession(true);
         session.setName("Yoga Session !!");
-
         mockMvc.perform(put(getUriSession(session.getId()))
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(sessionMapper.toDto(session)))
-                        .with(user(savedUserDetails)))
+                        .content(objectMapper.writeValueAsString(sessionMapper.toDto(session))))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Yoga Session !!"));
@@ -160,8 +147,7 @@ public class SessionControllerIntegrationTest {
         Session session = setupSession(true);
 
         mockMvc.perform(delete(getUriSession(session.getId()))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .with(user(savedUserDetails)))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
@@ -169,8 +155,7 @@ public class SessionControllerIntegrationTest {
     @Test
     public void delete_sessionNotExist_returnsNotFound() throws Exception {
         mockMvc.perform(delete(getUriSession(1L))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .with(user(savedUserDetails)))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
@@ -180,8 +165,7 @@ public class SessionControllerIntegrationTest {
         Session session = setupSession(true);
 
         mockMvc.perform(post(getUriParticipate(session.getId(),savedUser.getId()))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .with(user(savedUserDetails)))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
@@ -193,8 +177,7 @@ public class SessionControllerIntegrationTest {
         sessionRepository.save(session);
 
         mockMvc.perform(post(getUriParticipate(session.getId(),savedUser.getId()))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .with(user(savedUserDetails)))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
     }
@@ -202,8 +185,7 @@ public class SessionControllerIntegrationTest {
     @Test
     public void participate_sessionNotExist_returnsNotFound() throws Exception {
         mockMvc.perform(post(getUriParticipate(1L,savedUser.getId()))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .with(user(savedUserDetails)))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
@@ -215,8 +197,7 @@ public class SessionControllerIntegrationTest {
         Session session = setupSession(true);
 
         mockMvc.perform(post(getUriParticipate(session.getId(),2L))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .with(user(savedUserDetails)))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
@@ -228,8 +209,7 @@ public class SessionControllerIntegrationTest {
         sessionRepository.save(session);
 
         mockMvc.perform(delete(getUriParticipate(session.getId(),savedUser.getId()))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .with(user(savedUserDetails)))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
@@ -239,8 +219,7 @@ public class SessionControllerIntegrationTest {
         Session session = setupSession(true);
 
         mockMvc.perform(delete(getUriParticipate(session.getId(),savedUser.getId()))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .with(user(savedUserDetails)))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
     }
@@ -248,8 +227,7 @@ public class SessionControllerIntegrationTest {
     @Test
     public void unparticipate_sessionNotExist_returnsNotFound() throws Exception {
         mockMvc.perform(delete(getUriParticipate(1L,savedUser.getId()))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .with(user(savedUserDetails)))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
