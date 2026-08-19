@@ -70,7 +70,7 @@ public class SessionControllerValidationIntegrationTest {
         SessionDto sessionDto = new SessionDto();
         sessionDto.setName("Yoga Session");
         sessionDto.setDate(new Date());
-        sessionDto.setTeacher_id(1L);
+        sessionDto.setTeacherId(1L);
         sessionDto.setDescription("Yoga session description");
         return sessionDto;
     }
@@ -80,7 +80,7 @@ public class SessionControllerValidationIntegrationTest {
                 invalidCase("name is blank", (SessionDto sessionDto) -> sessionDto.setName(" ")),
                 invalidCase("name too long", (SessionDto sessionDto) -> sessionDto.setName("n".repeat(51))),
                 invalidCase("date is null", (SessionDto sessionDto) -> sessionDto.setDate(null)),
-                invalidCase("teacher_id is null", (SessionDto sessionDto) -> sessionDto.setTeacher_id(null)),
+                invalidCase("teacher_id is null", (SessionDto sessionDto) -> sessionDto.setTeacherId(null)),
                 invalidCase("description is null", (SessionDto sessionDto) -> sessionDto.setDescription(null)),
                 invalidCase("description too long", (SessionDto sessionDto) -> sessionDto.setDescription("d".repeat(2501)))
         );

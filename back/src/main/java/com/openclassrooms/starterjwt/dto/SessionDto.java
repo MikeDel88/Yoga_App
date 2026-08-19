@@ -1,5 +1,6 @@
 package com.openclassrooms.starterjwt.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -25,7 +26,8 @@ public class SessionDto {
     private Date date;
 
     @NotNull
-    private Long teacher_id;
+    @JsonProperty("teacher_id")
+    private Long teacherId;
 
     @NotNull
     @Size(max = 2500)
